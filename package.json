@@ -1,0 +1,31 @@
+{
+  "name": "bractalcad",
+  "private": true,
+  "version": "1.0.0",
+  "description": "This project is intended to be a working prototype of an idea I had for a different kind of Computer-Aided Design technique.",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Bractal-0/BractalCAD.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Bractal-0/BractalCAD/issues"
+  },
+  "homepage": "https://github.com/Bractal-0/BractalCAD#readme",
+  "devDependencies": {
+    "vite": "^6.3.5"
+  },
+  "dependencies": {
+    "three": "^0.176.0",
+    "vite": "^6.3.5"
+  }
+}
