@@ -13,5 +13,7 @@ const camera = new THREE.OrthographicCamera(
 
 camera.position.set(50, 50, 50);
 camera.lookAt(0, 0, 0);
+camera.zoom = 0.025;
+camera.updateProjectionMatrix();
 
 export default camera;

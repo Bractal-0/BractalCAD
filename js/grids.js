@@ -92,35 +92,13 @@ function createAxisLabel(text, color, position) {
 }
 
 // Add axis labels
-const offset = pSize + 6;
+const offset = pSize + 200;
 const xLabel = createAxisLabel('X', '#f00', new THREE.Vector3(offset, 0, 0));
 const yLabel = createAxisLabel('Y', '#0f0', new THREE.Vector3(0, offset, 0));
 const zLabel = createAxisLabel('Z', '#00f', new THREE.Vector3(0, 0, offset));
 
 gridsGroup.add(xLabel, yLabel, zLabel);
 
-let currentXYGrid = xyGrid;
-let currentXZGrid = xzGrid;
-let currentYZGrid = yzGrid;
-
-function setXYGrid(newGrid) {
-  xyGroup.remove(currentXYGrid);
-  xyGroup.add(newGrid);
-  currentXYGrid = newGrid;
-}
-function setXZGrid(newGrid) {
-  xzGroup.remove(currentXZGrid);
-  xzGroup.add(newGrid);
-  currentXZGrid = newGrid;
-}
-function setYZGrid(newGrid) {
-  yzGroup.remove(currentYZGrid);
-  yzGroup.add(newGrid);
-  currentYZGrid = newGrid;
-}
-
 export {
   gridsGroup as default, pSize, xyGroup, xzGroup, yzGroup,
-  xLabel, yLabel, zLabel,
-  setXYGrid, setXZGrid, setYZGrid
-};
+  xLabel, yLabel, zLabel};

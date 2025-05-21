@@ -6,9 +6,8 @@ import scene from './scene.js';
 import createControls from './controls.js';
 import gridsGroup, {
   pSize, xyGroup, xzGroup, yzGroup,
-  xLabel, yLabel, zLabel,
-  setXYGrid, setXZGrid, setYZGrid
-} from './grids.js';
+  xLabel, yLabel, zLabel} from './grids.js';
+
 // Always need 3 objects
 // Scene, camera, renderer
 
@@ -24,7 +23,7 @@ scene.add(gridsGroup);
 
 // Draw a circle at (0, 0, 0)
 const circleRadius = 50;
-const circleSegments = 1;
+const circleSegments = 40;
 const circleGeometry = new THREE.CircleGeometry(circleRadius, circleSegments);
 const circleMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000, opacity: 0.7, transparent: true });
 const circle = new THREE.Mesh(circleGeometry, circleMaterial);
@@ -37,6 +36,8 @@ function main() {
   function animate() {
     // tells browser to perform animation
     requestAnimationFrame(animate);
+
+    console.log('camera', camera.position);
 
     // --- Axis label scaling (optional, for consistent size) ---
     const baseLabelSize = 4;
@@ -78,17 +79,23 @@ document.getElementById('fullscreen-btn').addEventListener('click', () => {
   }
 });
 
-function gridSteps(worldPerPixel, minPixelSpacing = 40) {
-  const niceSteps = [1, 10, 20, 50, 100, 200, 500, 1000]; // adjust for your units
-  for (let i = 0; i < niceSteps.length; i++) {
-    if (niceSteps[i] / worldPerPixel >= minPixelSpacing) {
-      return niceSteps[i];
-    }
-  }
-  return niceSteps[niceSteps.length - 1];
-}
+// XY camera button
+document.getElementById('xyCamera-btn').addEventListener('click', () => {
+  camera.position.set(0, 0, 50);
+  camera.updateProjectionMatrix();
+  controls.update();
+});
 
-// const pointLight = new THREE.PointLight(0xffffff);
-// pointLight.position.set(5, 5, 5);
-// const ambientLight = new THREE.AmbientLight(0xffffff);
-// scene.add(pointLight, ambientLight);
+// ZY camera button
+document.getElementById('zyCamera-btn').addEventListener('click', () => {
+  camera.position.set(50, 0, 0);
+  camera.updateProjectionMatrix();
+  controls.update();
+});
+
+// XZ camera button
+document.getElementById('xzCamera-btn').addEventListener('click', () => {
+  camera.position.set(0, 50, 0);
+  camera.updateProjectionMatrix();
+  controls.update();
+});
