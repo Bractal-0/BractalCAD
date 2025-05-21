@@ -4,9 +4,11 @@ import { runStartupAnimation } from './startupAnimation.js';
 import camera from './camera.js';
 import scene from './scene.js';
 import createControls from './controls.js';
-import gridsGroup, { xyGroup, xzGroup, yzGroup } from './grids.js';
-
-
+import gridsGroup, {
+  pSize, xyGroup, xzGroup, yzGroup,
+  xLabel, yLabel, zLabel,
+  setXYGrid, setXZGrid, setYZGrid
+} from './grids.js';
 // Always need 3 objects
 // Scene, camera, renderer
 
@@ -14,15 +16,34 @@ const renderer = new THREE.WebGLRenderer({ canvas: document.querySelector('#back
 renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setSize(window.innerWidth, window.innerHeight);
 
+// Orbit controls
 const controls = createControls(camera, renderer);
 
+// Add the grid
 scene.add(gridsGroup);
+
+// Draw a circle at (0, 0, 0)
+const circleRadius = 50;
+const circleSegments = 1;
+const circleGeometry = new THREE.CircleGeometry(circleRadius, circleSegments);
+const circleMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000, opacity: 0.7, transparent: true });
+const circle = new THREE.Mesh(circleGeometry, circleMaterial);
+circle.position.set(0, 0, 0);
+circle.rotation.x = -Math.PI / 2; // Make it lie flat on the XY plane
+scene.add(circle);
 
 function main() {
 
   function animate() {
     // tells browser to perform animation
     requestAnimationFrame(animate);
+
+    // --- Axis label scaling (optional, for consistent size) ---
+    const baseLabelSize = 4;
+    const labelScale = baseLabelSize / camera.zoom;
+    xLabel.scale.set(labelScale, labelScale, labelScale);
+    yLabel.scale.set(labelScale, labelScale, labelScale);
+    zLabel.scale.set(labelScale, labelScale, labelScale);
 
     controls.update();
     renderer.render(scene, camera);
@@ -55,9 +76,17 @@ document.getElementById('fullscreen-btn').addEventListener('click', () => {
   } else if (elem.msRequestFullscreen) { // IE11
     elem.msRequestFullscreen();
   }
-  // Hide the button after entering fullscreen
-  document.getElementById('fullscreen-btn').style.display = 'none';
 });
+
+function gridSteps(worldPerPixel, minPixelSpacing = 40) {
+  const niceSteps = [1, 10, 20, 50, 100, 200, 500, 1000]; // adjust for your units
+  for (let i = 0; i < niceSteps.length; i++) {
+    if (niceSteps[i] / worldPerPixel >= minPixelSpacing) {
+      return niceSteps[i];
+    }
+  }
+  return niceSteps[niceSteps.length - 1];
+}
 
 // const pointLight = new THREE.PointLight(0xffffff);
 // pointLight.position.set(5, 5, 5);

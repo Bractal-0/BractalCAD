@@ -3,7 +3,7 @@ import * as THREE from 'three';
 const aspect = window.innerWidth / window.innerHeight;
 const d = 50;
 const camera = new THREE.OrthographicCamera(
-  -d * aspect, d * aspect, d, -d, -100, 1000
+  -d * aspect, d * aspect, d, -d, -10000, 10000
 );
 
 // Camera is like the eye of the viewer
