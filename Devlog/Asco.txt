@@ -1,2 +1,9 @@
 Ask copilot when available
 
+
+Boolean operation intersect
+
+1	Geometry visibility and purpose (invisible mesh for volume)
+2	Mapping 2D shape input to face-local space
+3	Extrusion in 3D along a vector (normal of face)
+4	Boolean intersection using CSG operations

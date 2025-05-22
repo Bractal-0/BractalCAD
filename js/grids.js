@@ -1,12 +1,12 @@
 import * as THREE from 'three';
 
 // Plane geometry
-const pSize = 2000;
-const griddivs = 30;
+const pSize = 100;
+const griddivs = 10;
 const planeGeometry = new THREE.PlaneGeometry(pSize, pSize);
 
 const xyMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide, transparent: true, opacity: 0.2 });
-const xzMaterial = new THREE.MeshBasicMaterial({ color: 0x8a8a8a, side: THREE.DoubleSide, transparent: true, opacity: 0.8 })
+const xzMaterial = new THREE.MeshBasicMaterial({ color: 0x8a8a8a, side: THREE.DoubleSide, transparent: true, opacity: 0.8});
 const yzMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide, transparent: true, opacity: 0.2 });
 
 // Utility to create a grid as BufferGeometry lines
@@ -86,13 +86,13 @@ function createAxisLabel(text, color, position) {
   const texture = new THREE.CanvasTexture(canvas);
   const material = new THREE.SpriteMaterial({ map: texture, transparent: true });
   const sprite = new THREE.Sprite(material);
-  sprite.scale.set(8, 8, 1); // Adjust size as needed
+  sprite.scale.set(6, 6, 1); // Adjust size as needed
   sprite.position.copy(position);
   return sprite;
 }
 
 // Add axis labels
-const offset = pSize + 200;
+const offset = pSize + 10;
 const xLabel = createAxisLabel('X', '#f00', new THREE.Vector3(offset, 0, 0));
 const yLabel = createAxisLabel('Y', '#0f0', new THREE.Vector3(0, offset, 0));
 const zLabel = createAxisLabel('Z', '#00f', new THREE.Vector3(0, 0, offset));

@@ -21,15 +21,18 @@ const controls = createControls(camera, renderer);
 // Add the grid
 scene.add(gridsGroup);
 
+
 // Draw a circle at (0, 0, 0)
-const circleRadius = 50;
-const circleSegments = 40;
-const circleGeometry = new THREE.CircleGeometry(circleRadius, circleSegments);
-const circleMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000, opacity: 0.7, transparent: true });
-const circle = new THREE.Mesh(circleGeometry, circleMaterial);
-circle.position.set(0, 0, 0);
-circle.rotation.x = -Math.PI / 2; // Make it lie flat on the XY plane
-scene.add(circle);
+// const circleRadius = 50;
+// const circleSegments = 40;
+// const circleGeometry = new THREE.CircleGeometry(circleRadius, circleSegments);
+// const circleMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000, opacity: 0.7, transparent: true });
+// const circle = new THREE.Mesh(circleGeometry, circleMaterial);
+// circle.position.set(0, 0, 0);
+// circle.rotation.x = -Math.PI / 2; // Make it lie flat on the XY plane
+// scene.add(circle);
+
+//const helper = new THREE.CameraHelper(camera);
 
 function main() {
 
@@ -38,9 +41,10 @@ function main() {
     requestAnimationFrame(animate);
 
     console.log('camera', camera.position);
+    //scene.add(helper);
 
     // --- Axis label scaling (optional, for consistent size) ---
-    const baseLabelSize = 4;
+    const baseLabelSize = 40;
     const labelScale = baseLabelSize / camera.zoom;
     xLabel.scale.set(labelScale, labelScale, labelScale);
     yLabel.scale.set(labelScale, labelScale, labelScale);
@@ -56,13 +60,13 @@ function main() {
 //runStartupAnimation(renderer, main);
 main();
 
-const d = 50;
+const d = 1000;
 window.addEventListener('resize', () => {
   const aspect = window.innerWidth / window.innerHeight;
-  camera.left = -d * aspect;
-  camera.right = d * aspect;
-  camera.top = d;
-  camera.bottom = -d;
+  camera.left = -aspect *d / 2;
+  camera.right = aspect * d / 2;
+  camera.top = d / 2;
+  camera.bottom = -d / 2;
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
@@ -81,21 +85,22 @@ document.getElementById('fullscreen-btn').addEventListener('click', () => {
 
 // XY camera button
 document.getElementById('xyCamera-btn').addEventListener('click', () => {
-  camera.position.set(0, 0, 50);
+  camera.position.set(0, 0, 500);
   camera.updateProjectionMatrix();
   controls.update();
 });
 
 // ZY camera button
 document.getElementById('zyCamera-btn').addEventListener('click', () => {
-  camera.position.set(50, 0, 0);
+  camera.position.set(500, 0, 0);
   camera.updateProjectionMatrix();
   controls.update();
 });
 
 // XZ camera button
 document.getElementById('xzCamera-btn').addEventListener('click', () => {
-  camera.position.set(0, 50, 0);
+  camera.position.set(0, 500, 0);
+  camera.lookAt(pSize/2, pSize/2, pSize/2);
   camera.updateProjectionMatrix();
   controls.update();
 });
