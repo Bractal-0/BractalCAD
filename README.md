@@ -1,8 +1,8 @@
 Project aim:
 
-This project is aims to be a working prototype of an idea I had for a Computer-Aided Design technique that harnesses the intuitive aspects of 2D design (e.g. paper) as an integral part of the 3D design process.
+This project aims to be a working prototype of an idea I had for a Computer-Aided Design technique using the simple aspects of 2D design and orthographic projection as an integral part of the 3D design process.
 
-Bractal's CAD involves using hollow 3D cubes where each face acts as a 2D plane for designing an object or part contained within. The user draws their design on the given plane as orthographic projections in side/front/bottom/top view, for the respective plane. Where the drawings on each plane intersect inside the cube is where the object is created. Then the object can be rendered in another window to avoid a messy design process.
+Bractal's CAD involves using hollow 3D cubes where each face acts as a 2D plane for designing an object or part contained within. The user draws their design on the given plane as orthographic projections in side/front/bottom view, for the respective plane. Then where the drawings on each plane intersect inside the cube is where the object is created using boolean operations. Then the objects are rendered in another window to avoid a messy design process.
 
 A single master cube, represented as three planes XY, ZY & XZ, and the object(s) inside can be just one part that can be grouped together to make a larger object; And like with the layers of photo editing software, these cubes can overlap each other to create intricate designs that each retain the 2D design details like measurements and drawing annotations.
 
@@ -16,18 +16,17 @@ Short-term Project Goals:
 
   - Line tool (mapping 2D input to local plane)
   - tool modifier (add or cut)
-  - Boolean operations (intersect to project 3D object)
+  - Boolean operation (intersect to define the 3D object)
+  - Export as STL
+  - Square tool
+  - circle tool
+
+Advanced features:
+
   - Layering / grouping
   - Boolean operations (join, split)
   - Dashed lines for hidden detail
-  - Export as STL
-  - Square tool
   - Mirror tool
   - Repeat pattern tool
-  
   - Extrude tool
-
-Long-term Project Goals:
-
-  - Full fledged CAD program
-  - Addons
+  - Import STL
