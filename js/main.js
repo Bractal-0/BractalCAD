@@ -2,11 +2,13 @@ import * as THREE from 'three';
 import { GUI } from 'three/examples/jsm/libs/lil-gui.module.min.js';
 import { runStartupAnimation } from './startupAnimation.js';
 import camera from './camera.js';
+import { zoomScale } from './camera.js';
 import scene from './scene.js';
 import createControls from './controls.js';
 import gridsGroup, {
   pSize, xyGroup, xzGroup, zyGroup,
   xLabel, yLabel, zLabel} from './grids.js';
+import { resetLabels } from './grids.js';
 
 // Always need 3 objects
 // Scene, camera, renderer
@@ -106,6 +108,13 @@ document.getElementById('resetCamera-btn').addEventListener('click', () => {
   controls.target.set(0, 0, 0);
   controls.update();
   camera.updateProjectionMatrix();
+
+  // Reset controls
+  controls.enableRotate = true;
+  // Reset label positions
+  xLabel.position.set(pSize+10, 0, 0);
+  yLabel.position.set(0, pSize+10, 0);
+  zLabel.position.set(0, 0, pSize+10);
 });
 
 // XY camera button
@@ -117,9 +126,16 @@ document.getElementById('xyCamera-btn').addEventListener('click', () => {
   camera.up.set(0, 1, 0);
   // Look at the center of the plane
   camera.lookAt(center);
+  controls.enableRotate = false;
   // Update OrbitControls target and sync
   controls.target.copy(center);
   camera.updateProjectionMatrix();
+
+  // Reset label positions
+  resetLabels();
+
+  // move Z label
+  zLabel.position.set(0, -10, pSize + 10);
 });
 
 // ZY camera button
@@ -128,8 +144,15 @@ document.getElementById('zyCamera-btn').addEventListener('click', () => {
   camera.position.set(500, pSize/2, pSize/2);
   camera.up.set(0, 1, 0);
   camera.lookAt(center);
+  controls.enableRotate = false;
   controls.target.copy(center);
   camera.updateProjectionMatrix();
+
+  // Reset label positions
+  resetLabels();
+
+  // move 
+  xLabel.position.set(pSize+10, -10, 0);
 });
 
 // XZ camera button
@@ -138,7 +161,13 @@ document.getElementById('xzCamera-btn').addEventListener('click', () => {
   camera.position.set(pSize / 2, 500, pSize / 2);
   camera.up.set(0, 0, -1);
   camera.lookAt(center);
+  controls.enableRotate = false;
   controls.target.copy(center);
-  controls.update();
   camera.updateProjectionMatrix();
+
+  // Reset label positions
+  resetLabels();
+
+  // move Y label
+  yLabel.position.set(0, pSize+10, -10);
 });

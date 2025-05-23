@@ -27,3 +27,4 @@ dist-ssr
 Research/
 Devlog/
 deploy.cjs
+deploy.sh

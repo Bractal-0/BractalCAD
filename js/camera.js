@@ -1,12 +1,12 @@
 import * as THREE from 'three';
 
 const aspect = window.innerWidth / window.innerHeight;
-const d = 1000;
+const zoomScale = 1000;
 const camera = new THREE.OrthographicCamera(
-  -aspect * d / 2,
-   aspect * d / 2,
-   d / 2,
-  -d / 2,
+  -aspect * zoomScale / 2,
+   aspect * zoomScale / 2,
+   zoomScale / 2,
+  -zoomScale / 2,
   0.1,
   1000
 );

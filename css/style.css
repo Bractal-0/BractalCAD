@@ -1,7 +1,6 @@
 * {
   box-sizing: border-box;
 }
-
 #background {
   position: fixed;
   top: 0;
@@ -17,6 +16,21 @@ html, body {
   width: 100dvw;
   height: 100dvh;
 }
+.home-icon {
+  position: fixed;
+  max-width: 50px !important;
+  height: auto; /* Maintain aspect ratio */
+  object-fit: contain;
+  overflow: hidden;
+  padding-top: 5px;
+  padding-left: 5px;
+  border: none;
+  margin: 0;
+  cursor: pointer;
+  background-color: transparent;
+  opacity: 0.9;
+  z-index: 1000;
+}
 #user-interface{
   position: fixed;
   z-index: 100;
@@ -31,7 +45,7 @@ html, body {
   justify-content: flex-start;
   text-wrap: wrap;
   align-items: center;
-  top: 5%;
+  top: 30%;
   left: 5%;
   min-width: auto;
   height: auto;
