@@ -73,13 +73,28 @@ window.addEventListener('resize', () => {
 
 // Fullscreen button
 document.getElementById('fullscreen-btn').addEventListener('click', () => {
-  const elem = document.documentElement; // or use renderer.domElement for just the canvas
-  if (elem.requestFullscreen) {
-    elem.requestFullscreen();
-  } else if (elem.webkitRequestFullscreen) { // Safari
-    elem.webkitRequestFullscreen();
-  } else if (elem.msRequestFullscreen) { // IE11
-    elem.msRequestFullscreen();
+  const elem = document.documentElement;
+
+  if (!document.fullscreenElement &&
+      !document.webkitFullscreenElement &&
+      !document.msFullscreenElement) {
+    // ENTER fullscreen
+    if (elem.requestFullscreen) {
+      elem.requestFullscreen();
+    } else if (elem.webkitRequestFullscreen) {
+      elem.webkitRequestFullscreen();
+    } else if (elem.msRequestFullscreen) {
+      elem.msRequestFullscreen();
+    }
+  } else {
+    // EXIT fullscreen
+    if (document.exitFullscreen) {
+      document.exitFullscreen();
+    } else if (document.webkitExitFullscreen) {
+      document.webkitExitFullscreen();
+    } else if (document.msExitFullscreen) {
+      document.msExitFullscreen();
+    }
   }
 });
 
