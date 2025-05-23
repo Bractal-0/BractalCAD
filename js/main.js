@@ -5,7 +5,7 @@ import camera from './camera.js';
 import scene from './scene.js';
 import createControls from './controls.js';
 import gridsGroup, {
-  pSize, xyGroup, xzGroup, yzGroup,
+  pSize, xyGroup, xzGroup, zyGroup,
   xLabel, yLabel, zLabel} from './grids.js';
 
 // Always need 3 objects
@@ -40,7 +40,7 @@ function main() {
     // tells browser to perform animation
     requestAnimationFrame(animate);
 
-    console.log('camera', camera.position);
+    //console.log('camera', camera.rotation);
     //scene.add(helper);
 
     // --- Axis label scaling (optional, for consistent size) ---
@@ -83,24 +83,47 @@ document.getElementById('fullscreen-btn').addEventListener('click', () => {
   }
 });
 
+// Reset camera button
+document.getElementById('resetCamera-btn').addEventListener('click', () => {
+  camera.position.set(500, 500, 500);
+  camera.up.set(0, 1, 0);
+  camera.lookAt(0, 0, 0);
+  controls.target.set(0, 0, 0);
+  controls.update();
+  camera.updateProjectionMatrix();
+});
+
 // XY camera button
 document.getElementById('xyCamera-btn').addEventListener('click', () => {
-  camera.position.set(0, 0, 500);
+  const center = new THREE.Vector3(pSize / 2, pSize / 2, 0);
+  // Position the camera above the plane, looking down
+  camera.position.set(pSize/2, pSize/2, 500);
+  // Set "up" to +Z so the plane isn't rotated visually
+  camera.up.set(0, 1, 0);
+  // Look at the center of the plane
+  camera.lookAt(center);
+  // Update OrbitControls target and sync
+  controls.target.copy(center);
   camera.updateProjectionMatrix();
-  controls.update();
 });
 
 // ZY camera button
 document.getElementById('zyCamera-btn').addEventListener('click', () => {
-  camera.position.set(500, 0, 0);
+  const center = new THREE.Vector3(0, pSize / 2, pSize / 2);
+  camera.position.set(500, pSize/2, pSize/2);
+  camera.up.set(0, 1, 0);
+  camera.lookAt(center);
+  controls.target.copy(center);
   camera.updateProjectionMatrix();
-  controls.update();
 });
 
 // XZ camera button
 document.getElementById('xzCamera-btn').addEventListener('click', () => {
-  camera.position.set(0, 500, 0);
-  camera.lookAt(pSize/2, pSize/2, pSize/2);
-  camera.updateProjectionMatrix();
+  const center = new THREE.Vector3(pSize / 2, 0, pSize / 2);  
+  camera.position.set(pSize / 2, 500, pSize / 2);
+  camera.up.set(0, 0, -1);
+  camera.lookAt(center);
+  controls.target.copy(center);
   controls.update();
+  camera.updateProjectionMatrix();
 });

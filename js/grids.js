@@ -3,11 +3,12 @@ import * as THREE from 'three';
 // Plane geometry
 const pSize = 100;
 const griddivs = 10;
+
 const planeGeometry = new THREE.PlaneGeometry(pSize, pSize);
 
 const xyMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide, transparent: true, opacity: 0.2 });
+const zyMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide, transparent: true, opacity: 0.2 });
 const xzMaterial = new THREE.MeshBasicMaterial({ color: 0x8a8a8a, side: THREE.DoubleSide, transparent: true, opacity: 0.8});
-const yzMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide, transparent: true, opacity: 0.2 });
 
 // Utility to create a grid as BufferGeometry lines
 function createGridLines(size, divisions, color) {
@@ -32,44 +33,45 @@ function createGridLines(size, divisions, color) {
 // XY
 const xyPlane = new THREE.Mesh(planeGeometry, xyMaterial);
 xyPlane.position.set(pSize/2, pSize/2, 0);
+xyPlane.rotation.x = Math.PI;
 
 const xyGrid = createGridLines(pSize, griddivs, 0x00ff00);
-xyGrid.rotation.x = Math.PI;
 xyGrid.position.set(pSize/2, pSize/2, 0);
+xyGrid.rotation.x = Math.PI;
 
 // Combine XY plane and grid
 const xyGroup = new THREE.Group();
 xyGroup.add(xyPlane, xyGrid);
 
+// ZY
+const zyPlane = new THREE.Mesh(planeGeometry, zyMaterial);
+zyPlane.position.set(0, pSize/2, pSize/2);
+zyPlane.rotation.y = Math.PI / 2;
+
+const zyGrid = createGridLines(pSize, griddivs, 0xff0000);
+zyGrid.position.set(0, pSize/2, pSize/2);
+zyGrid.rotation.y = Math.PI / 2;
+
+// Combine YZ plane and grid
+const zyGroup = new THREE.Group();
+zyGroup.add(zyPlane, zyGrid);
+
 // XZ
 const xzPlane = new THREE.Mesh(planeGeometry, xzMaterial);
 xzPlane.position.set(pSize/2, 0, pSize/2);
-xzPlane.rotation.x = -Math.PI / 2;
+xzPlane.rotation.x = Math.PI / 2;
 
 const xzGrid = createGridLines(pSize, griddivs, 0x0000ff);
-xzGrid.rotation.x = Math.PI/2;
 xzGrid.position.set(pSize/2, 0, pSize/2);
+xzGrid.rotation.x = Math.PI/2;
 
 // Combine XZ plane and grid
 const xzGroup = new THREE.Group();
 xzGroup.add(xzPlane, xzGrid);
 
-// YZ
-const yzPlane = new THREE.Mesh(planeGeometry, yzMaterial);
-yzPlane.rotation.y = Math.PI / 2;
-yzPlane.position.set(0, pSize/2, pSize/2);
-
-const yzGrid = createGridLines(pSize, griddivs, 0xff0000);
-yzGrid.rotation.y = Math.PI/2;
-yzGrid.position.set(0, pSize/2, pSize/2);
-
-// Combine YZ plane and grid
-const yzGroup = new THREE.Group();
-yzGroup.add(yzPlane, yzGrid);
-
 // Master group
 const gridsGroup = new THREE.Group();
-gridsGroup.add(xyGroup, xzGroup, yzGroup);
+gridsGroup.add(xyGroup, xzGroup, zyGroup);
 
 function createAxisLabel(text, color, position) {
   const canvas = document.createElement('canvas');
@@ -100,5 +102,5 @@ const zLabel = createAxisLabel('Z', '#00f', new THREE.Vector3(0, 0, offset));
 gridsGroup.add(xLabel, yLabel, zLabel);
 
 export {
-  gridsGroup as default, pSize, xyGroup, xzGroup, yzGroup,
+  gridsGroup as default, pSize, xyGroup, xzGroup, zyGroup,
   xLabel, yLabel, zLabel};

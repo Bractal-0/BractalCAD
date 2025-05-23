@@ -15,16 +15,16 @@ Bractal's CAD seeks to retain the intuitive 2D aspects of design by making them 
 Short-term Project Goals:
 
   - Line tool (mapping 2D input to local plane)
-  - tool modifier (add or cut)
+  - tool modifier (add | cut)
   - Boolean operation (intersect to define the 3D object)
-  - Export as STL
+  - Import/Export as STL
   - Square tool
   - circle tool
 
 Advanced features:
 
   - Layering / grouping
-  - Boolean operations (join, split)
+  - Boolean operations (difference, join, split)
   - Dashed lines for hidden detail
   - Mirror tool
   - Repeat pattern tool

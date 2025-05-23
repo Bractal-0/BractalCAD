@@ -1,3 +1,7 @@
+* {
+  box-sizing: border-box;
+}
+
 #background {
   position: fixed;
   top: 0;
@@ -12,4 +16,52 @@ html, body {
   overflow: hidden;
   width: 100vw;
   height: 100vh;
+}
+#user-interface{
+  position: fixed;
+  z-index: 100;
+  pointer-events: auto;
+  font-size: 12px;
+  text-align: center;
+}
+#camera-controls {
+  position: fixed;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  text-wrap: wrap;
+  align-items: center;
+  top: 5%;
+  left: 5%;
+  min-width: auto;
+  height: auto;
+  border: none;
+  gap: 10px;
+}
+#camera-controls button {
+  width: 100%;
+  text-align: center;
+  cursor: pointer;
+  padding: 6px;
+}
+#about {
+  position: fixed;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100vw;
+  padding: 1rem 5px;
+  height: 1rem;
+  font-size: 10px;
+  font-style: italic;
+}
+#about p {
+  padding: 0 5px;
+}
+#about a {
+  font-size: 12px;
 }
