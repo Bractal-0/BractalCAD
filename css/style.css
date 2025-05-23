@@ -54,14 +54,19 @@ html, body {
   left: 0;
   right: 0;
   width: 100vw;
-  padding: 1rem 5px;
+  padding: 15px 5px;
   height: 1rem;
   font-size: 10px;
   font-style: italic;
+  cursor: default;
+  user-select: none;
+  pointer-events: none;
 }
 #about p {
   padding: 0 5px;
+
 }
 #about a {
   font-size: 12px;
+  pointer-events: all;
 }
