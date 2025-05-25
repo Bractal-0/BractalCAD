@@ -18,11 +18,14 @@ const cameraNear = 0.1;
 // camera.far should be pSize*2
 const cameraFar = 3000;
 
+camera.zoom = cameraZoom;
 camera.near = cameraNear;
 camera.far = cameraFar;
-// Distance between camera and planes
-const halfPlane = cube.pSize/2;
-const center = new THREE.Vector3(halfPlane, halfPlane, -halfPlane);
+
+// input number button for cube gap with max and min.
+
+// Center of cube
+const center = new THREE.Vector3(cube.halfPlane, cube.halfPlane, -cube.halfPlane);
 
 const baseLabelSize = 40;
 
@@ -32,19 +35,20 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 
 // Orbit controls
 const controls = createControls(camera, renderer);
-// 1000 is your zoom scale
+
 addResizeListener(camera, renderer, cameraFrustrumSize);
 
 // Set camera zoom
 //setZoom(camera, cube.pSize);
 
-setCameraPos(-cube.pSize, cube.pSize*2, cube.pSize);
-camera.zoom = cameraZoom;
+setCameraPos(-cube.pSize-cube.gap, cube.pSize*2+cube.gap, cube.pSize+cube.gap);
 setCameraTarget(center);
+camera.zoom = cameraZoom;
 
 // OrbitControls can derive rotation or lookat by position and target.
 
 function setCameraTarget(target) {
+  camera.lookAt(target);
   controls.target.copy(target);
   refreshConCam();
 }
@@ -55,11 +59,32 @@ function setCameraPos(x, y , z) {
 }
 
 function refreshConCam() {
-  camera.near = cameraNear;
-  camera.far = cameraFar;
-  camera.up.set(0, 1, 0);
   controls.update();
   camera.updateProjectionMatrix();
+}
+
+//  Might need to adjust for top and bottom planes
+function lockRotation() {
+  controls.enableRotate = false;
+  // Lock vertical rotation
+  // controls.minPolarAngle = Math.PI / 2;
+  // controls.maxPolarAngle = Math.PI / 2;
+  // // Lock horizontal rotation
+  // controls.minAzimuthAngle = 0;
+  // controls.maxAzimuthAngle = 0;
+  refreshConCam();
+}
+
+function unlockRotation() {
+  camera.up.set(0, 1, 0);
+  controls.enableRotate = true;
+  // unlock vertical rotation
+  // controls.minPolarAngle = 0; // allow looking up
+  // controls.maxPolarAngle = Math.PI; // allow looking down
+  // // unlock horizontal rotation
+  // controls.minAzimuthAngle = -Infinity; // no limit left
+  // controls.maxAzimuthAngle = Infinity; // no limit right
+  refreshConCam();
 }
 
 // const centerMarker = new THREE.Mesh(
@@ -77,35 +102,6 @@ scene.add(origin);
 // Add the grid
 scene.add(cube);
 
-//raycaster
-// const points = [];  // Array to store THREE.Vector3 points
-// const raycaster = new THREE.Raycaster();
-// const pointer = new THREE.Vector2();
-// function onPointerMove(event) {
-//     pointer.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-//     pointer.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
-
-//     raycaster.setFromCamera(pointer, camera);
-//     const intersects = raycaster.intersectObject(plane);
-
-//     if (intersects.length > 0) {
-//         points.push(intersects[0].point.clone());
-
-//         const geometry = new THREE.BufferGeometry().setFromPoints(points);
-
-//         if (!window.line) {
-//             const material = new THREE.LineBasicMaterial({ color: 0x000000 });
-//             window.line = new THREE.Line(geometry, material);
-//             scene.add(window.line);
-//         } else {
-//             window.line.geometry.dispose();
-//             window.line.geometry = geometry;
-//         }
-//     }
-// }
-
-//window.addEventListener('pointermove', onPointerMove);
-
 function main() {
 
   function animate() {
@@ -114,9 +110,8 @@ function main() {
 
     scaleLabels(baseLabelSize, camera);
 
-    console.log(camera.position);
-    console.log(camera.up);
-    console.log(camera.near, camera.far);
+    // console.log(camera.position);
+    // console.log(camera.up);
 
     controls.update();
     renderer.render(scene, camera);
@@ -126,6 +121,72 @@ function main() {
 // Run startup animation, then start main app
 //runStartupAnimation(renderer, main);
 main();
+
+const isDrawing = false;
+
+while (isDrawing === true) {
+  //raycaster
+  const points = [];  // Array to store THREE.Vector3 points
+  const raycaster = new THREE.Raycaster();
+  const pointer = new THREE.Vector2();
+  function onPointerMove(e) {
+      pointer.x = ( e.clientX / window.innerWidth ) * 2 - 1;
+      pointer.y = - ( e.clientY / window.innerHeight ) * 2 + 1;
+
+      raycaster.setFromCamera(pointer, camera);
+      const intersects = raycaster.intersectObject(plane);
+
+      if (intersects.length > 0) {
+          points.push(intersects[0].point.clone());
+
+          const geometry = new THREE.BufferGeometry().setFromPoints(points);
+
+          if (!window.line) {
+              const material = new THREE.LineBasicMaterial({ color: 0x000000 });
+              window.line = new THREE.Line(geometry, material);
+              scene.add(window.line);
+          } else {
+              window.line.geometry.dispose();
+              window.line.geometry = geometry;
+          }
+      }
+  }
+}
+
+
+
+// && which tool
+window.addEventListener('mousedown', (e) => {
+  // 0 is left button
+  if (e.button === 0) isDrawing = true;
+});
+
+window.addEventListener('mouseup', (e) => {
+  // 0 is left button
+  if (e.button === 0) isDrawing = false;
+});
+
+
+
+controls.mouseButtons.LEFT = null;
+
+window.addEventListener('keydown', (e) => {
+  if (e.code === 'Space') {
+    controls.mouseButtons.LEFT = THREE.MOUSE.PAN;
+  }
+});
+
+window.addEventListener('keyup', (e) => {
+  if (e.code === 'Space') {
+    // disables left mouse action
+    controls.mouseButtons.LEFT = null;
+  }
+});
+
+// line tool button
+document.getElementById('line-btn').addEventListener('click', () => {
+  // Switch tool to line
+});
 
 // Fullscreen button
 document.getElementById('fullscreen-btn').addEventListener('click', () => {
@@ -157,49 +218,44 @@ document.getElementById('fullscreen-btn').addEventListener('click', () => {
 document.getElementById('toggle-grid-btn').addEventListener('click', () => {
   toggleGrids(scene);
 });
-// XY camera button
+// XY Yellow plane camera button
 document.getElementById('xyCamera-btn').addEventListener('click', () => {
-  // Yellow plane
-  setCameraPos(-halfPlane, halfPlane, halfPlane);
+  setCameraPos(cube.halfPlane, cube.halfPlane, cube.pSize+cube.gap*2);
   setCameraTarget(center);
-  controls.enableRotate = false;
-  // Lock vertical rotation
-  controls.minPolarAngle = Math.PI / 2;
-  controls.maxPolarAngle = Math.PI / 2;
-  // Lock horizontal rotation
-  controls.minAzimuthAngle = 0;
-  controls.maxAzimuthAngle = 0;
   refreshConCam();
 });
-// ZY camera button
+// ZY Red plane camera button
 document.getElementById('zyCamera-btn').addEventListener('click', () => {
-  const center = new THREE.Vector3(0, cube.pSize / 2, cube.pSize / 2);
-  camera.position.set(500, cube.pSize/2, cube.pSize/2);
-  camera.up.set(0, 1, 0);
-  camera.lookAt(center);
-  controls.enableRotate = false;
-  controls.target.copy(center);
-  camera.updateProjectionMatrix();
+  setCameraPos(-cube.pSize-cube.gap, cube.halfPlane, -cube.halfPlane);
+  setCameraTarget(center);
+  refreshConCam();
 });
-// XZ camera button
+// XZ Blue plane camera button
 document.getElementById('xzCamera-btn').addEventListener('click', () => {
-  const center = new THREE.Vector3(cubepSize / 2, 0, cube.pSize / 2);  
-  camera.position.set(cube.pSize / 2, 500, cube.pSize / 2);
-  camera.up.set(0, 0, -1);
-  camera.lookAt(center);
-  controls.enableRotate = false;
-  controls.target.copy(center);
-  camera.updateProjectionMatrix();
+  setCameraPos(cube.halfPlane, -cube.pSize - cube.gap, -cube.halfPlane);
+  setCameraTarget(center);
+  refreshConCam();
+});
+// AB Pink plane camera button
+document.getElementById('abCamera-btn').addEventListener('click', () => {
+  setCameraPos(cube.halfPlane, cube.halfPlane, -cube.pSize-cube.gap*2);
+  setCameraTarget(center);
+  refreshConCam();
+});
+// CB Green plane camera button
+document.getElementById('cbCamera-btn').addEventListener('click', () => {
+  setCameraPos(cube.pSize+cube.gap*3, cube.halfPlane, -cube.halfPlane);
+  setCameraTarget(center);
+  refreshConCam();
+});
+// AB Orange plane camera button
+document.getElementById('acCamera-btn').addEventListener('click', () => {
+  setCameraPos(cube.halfPlane, cube.pSize+cube.gap*2, -cube.halfPlane);
+  setCameraTarget(center);
+  refreshConCam();
 });
 // Return to orbit
 document.getElementById('orbit-btn').addEventListener('click', () => {
   setCameraTarget(center);
-  controls.enableRotate = true;
-  // unlock vertical rotation
-  controls.minPolarAngle = 0; // allow looking up
-  controls.maxPolarAngle = Math.PI; // allow looking down
-  // unlock horizontal rotation
-  controls.minAzimuthAngle = -Infinity; // no limit left
-  controls.maxAzimuthAngle = Infinity; // no limit right
   refreshConCam();
 });

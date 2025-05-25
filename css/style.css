@@ -121,7 +121,7 @@ html, body {
 #fullscreen-btn {
   margin-bottom: 5px;
 }
-#tools-container {
+#tools {
   position: fixed;
   display: flex;
   flex-direction: column;

@@ -7,7 +7,7 @@ export default function createControls(camera, renderer) {
   controls.enableRotate = true;
   controls.enablePan = true;
   controls.enableZoom = true;
-  controls.zoomSpeed = 3;
+  controls.zoomSpeed = 1.5;
 
   // Remap mouse buttons
   controls.mouseButtons = {

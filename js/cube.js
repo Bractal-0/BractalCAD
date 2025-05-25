@@ -7,7 +7,7 @@ const griddivs = 20;
 
 const planeGeometry = new THREE.PlaneGeometry(pSize, pSize);
 
-const gapSize = 0.8;
+const gapSize = 0.999;
 // cube gap
 const gap = pSize * gapSize;
 
@@ -99,7 +99,7 @@ const abPlane = new THREE.Mesh(planeGeometry, abMaterial);
 const cbPlane = new THREE.Mesh(planeGeometry, cbMaterial);
 const acPlane = new THREE.Mesh(planeGeometry, acMaterial);
 
-// Create cube
+// Create grids
 const xyGrid = createGridLines(pSize, griddivs);
 const zyGrid = createGridLines(pSize, griddivs);
 const xzGrid = createGridLines(pSize, griddivs);
@@ -107,6 +107,7 @@ const abGrid = createGridLines(pSize, griddivs);
 const cbGrid = createGridLines(pSize, griddivs);
 const acGrid = createGridLines(pSize, griddivs);
 
+// Create plan and grid groups
 const xyGroup = new THREE.Group();
 const zyGroup = new THREE.Group();
 const xzGroup = new THREE.Group();
@@ -122,12 +123,18 @@ abGroup.add(abPlane);
 cbGroup.add(cbPlane);
 acGroup.add(acPlane);
 
+// Check axis of planes
+//const axis = new THREE.AxesHelper(300);
+//acGroup.add(axis);
+
 // Set group rotation & positions
 xyGroup.position.set(pSize/2, pSize/2, -gap+0);
+xyGroup.rotation.y = Math.PI;
 
 zyGroup.rotation.y = -Math.PI/2;
 zyGroup.position.set(-gap+0, pSize/2, pSize/2);
 
+// +x axis is aligned with world x.
 xzGroup.rotation.x = Math.PI/2;
 xzGroup.position.set(pSize/2, -gap+0, pSize/2);
 
@@ -136,6 +143,7 @@ abGroup.position.set(pSize/2,pSize/2,pSize+gap);
 cbGroup.rotation.y = Math.PI/2;
 cbGroup.position.set(pSize+gap, pSize/2, pSize/2);
 
+// +x axis is aligned with world x.
 acGroup.rotation.x = -Math.PI/2;
 acGroup.position.set(pSize/2, pSize+gap, pSize/2);
 
@@ -171,7 +179,6 @@ const bLabelColour = cbColour;
 const cLabelColour = acColour;
 
 // Add axis labels
-const offset = pSize;
 const xLabel = createAxisLabel('X', xLabelColour, new THREE.Vector3(halfPlane, -gap, -gap));
 const yLabel = createAxisLabel('Y', yLabelColour, new THREE.Vector3(-gap, halfPlane, -gap));
 const zLabel = createAxisLabel('Z', zLabelColour, new THREE.Vector3(-gap, -gap, halfPlane));
@@ -192,6 +199,8 @@ cLabel.renderOrder = 1;
 
 // Attach named exports to the default export
 cube.pSize = pSize;
+cube.gap = gap;
+cube.halfPlane = halfPlane;
 cube.xyGroup = xyGroup;
 cube.xzGroup = xzGroup;
 cube.zyGroup = zyGroup;
@@ -204,10 +213,6 @@ cube.zLabel = zLabel;
 cube.aLabel = aLabel;
 cube.bLabel = bLabel;
 cube.cLabel = cLabel;
-
-// Check axis of planes
-const axis = new THREE.AxesHelper(300);
-//cube.zyGroup.add(axis);
 
 export {
   cube as default, pSize, gap, halfPlane, xyGroup, xzGroup, zyGroup, abGroup, cbGroup, acGroup,
