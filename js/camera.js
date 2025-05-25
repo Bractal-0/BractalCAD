@@ -14,12 +14,4 @@ const camera = new THREE.OrthographicCamera(
   2000
 );
 
-export function setAspect(aspect) {
-  camera.left = -aspect * zoomScale / 2;
-  camera.right = aspect * zoomScale / 2;
-  camera.top = zoomScale / 2;
-  camera.bottom = -zoomScale / 2;
-  camera.updateProjectionMatrix();
-}
-
 export default camera;

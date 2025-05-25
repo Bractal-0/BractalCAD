@@ -4,45 +4,72 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Bractal CAD</title>
+  <link rel="icon" href="/icons/favicon/favicon.ico" type="image/x-icon">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <nav>
-    <a href="https://bractal.com">
-      <img
-      class="home-icon"
-      src="icons/white-butterfly.svg"
-      alt="White-Butterfly"
-      />
-    </a>
-  </nav>
   <canvas id="background"></canvas>
   
   <div id="user-interface">
     <div id="camera-controls">
-      <button id="fullscreen-btn">
-        Fullscreen
-      </button>
-      <button id="xyCamera-btn">
-        XY Camera
-      </button>
-      <button id="zyCamera-btn">
-        ZY Camera
-      </button>
-      <button id="xzCamera-btn">
-        XZ Camera
-      </button>
-      <button id="resetCamera-btn">
-        Reset Camera
+      <div class="camera-control">
+        <button id="xyCamera-btn"></button>
+        <span>XY</span>
+      </div>
+      <div class="camera-control">
+        <button id="zyCamera-btn"></button>
+        <span>ZY</span>
+      </div>
+      <div class="camera-control">
+        <button id="xzCamera-btn"></button>
+        <span>XZ</span>
+      </div>
+      <div class="camera-control">
+        <button id="orbit-btn"></button>
+        <span>Orbit</span>
+      </div>
+      <div class="camera-control">
+        <button id="abCamera-btn"></button>
+        <span>AB</span>
+      </div>
+      <div class="camera-control">
+        <button id="cbCamera-btn"></button>
+        <span>CB</span>
+      </div>
+      <div class="camera-control">
+        <button id="acCamera-btn"></button>
+        <span>AC</span>
+      </div>
+    </div>
+    <div id="settings">
+      <div class="setting">
+        <span>Fullscreen</span>
+        <button id="fullscreen-btn" type="Toggle"></button>
+      </div>
+      <div class="setting">
+        <span>Grid</span>
+        <button id="toggle-grid-btn" type="Toggle"></button>
+      </div>
+    </div>
+
+    <div id="tools-container">
+      <button id="line-tool-btn">
+        Line
       </button>
     </div>
 
     <div id="about">
       <p>Bractal's CAD - An orthographic CAD application</p>
-      <p>Version 0.1</p>
+      <p>Version 0.2</p>
       <p>&copy; 2025 Bractal</p>
       <p>License: GNU GPL-3.0 </p>
-      <p>Contact: <a href="mailto:art@bractal.com">art@bractal.com</a></p>
+      <a href="https://bractal.com">
+        <img
+        class="home-icon"
+        src="icons/white-butterfly.svg"
+        alt="White-Butterfly"
+        />
+      </a>
     </div>
   </div>
 

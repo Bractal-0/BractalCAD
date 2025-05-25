@@ -2,14 +2,27 @@ import * as THREE from 'three';
 import { GUI } from 'three/examples/jsm/libs/lil-gui.module.min.js';
 import { runStartupAnimation } from './startupAnimation.js';
 import camera, * as cameraUtils from './camera.js';
-import { addResizeListener } from './resize.js';
+import { addResizeListener} from './resize.js';
 import scene from './scene.js';
 import createControls from './controls.js';
 import grids from './grids.js';
-import { resetLabels, scaleLabels } from './grids.js';
+import { toggleGrids, scaleGrids, scaleLabels } from './grids.js';
+//import * as TOOLS from 'tools';
 
 // Always need 3 objects
 // Scene, camera, renderer
+
+const cameraZoom = 3;
+const cameraZoomScale = 1000;
+const cameraNear = 0.1;
+// far should be pSize*2
+const cameraFar = 3000;
+
+camera.near = cameraNear;
+camera.far = cameraFar;
+// Distance between camera and planes
+const halfPlane = grids.pSize/2;
+const center = new THREE.Vector3(halfPlane, halfPlane, -halfPlane);
 
 const baseLabelSize = 40;
 
@@ -20,23 +33,41 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 // Orbit controls
 const controls = createControls(camera, renderer);
 // 1000 is your zoom scale
-addResizeListener(camera, renderer, 1000);
+addResizeListener(camera, renderer, cameraZoomScale);
 
-camera.position.set(-500,600,500);
+// Set camera zoom
+//setZoom(camera, grids.pSize);
 
-const center = new THREE.Vector3(grids.pSize/2, grids.pSize/2, -grids.pSize/2);
-camera.lookAt(center);
-controls.target.copy(center);
-camera.zoom = 3;
-controls.update();
-camera.updateProjectionMatrix();
+setCameraPos(-halfPlane, halfPlane + halfPlane*2, halfPlane);
+camera.zoom = cameraZoom;
+setCameraTarget(center);
 
-const centerMarker = new THREE.Mesh(
-  new THREE.SphereGeometry(5),
-  new THREE.MeshBasicMaterial({ color: 0x000000 })
-);
-centerMarker.position.set(grids.pSize/2, grids.pSize/2, grids.pSize/2);
-scene.add(centerMarker);
+// OrbitControls can derive rotation or lookat by position and target.
+
+function setCameraTarget(target) {
+  controls.target.copy(target);
+  refreshConCam();
+}
+
+function setCameraPos(x, y , z) {
+  camera.position.set(x, y, z);
+  refreshConCam();
+}
+
+function refreshConCam() {
+  camera.near = cameraNear;
+  camera.far = cameraFar;
+  camera.up.set(0, 1, 0);
+  controls.update();
+  camera.updateProjectionMatrix();
+}
+
+// const centerMarker = new THREE.Mesh(
+//   new THREE.SphereGeometry(5),
+//   new THREE.MeshBasicMaterial({ color: 0x000000 })
+// );
+// centerMarker.position.set(grids.pSize/2, grids.pSize/2, grids.pSize/2);
+// scene.add(centerMarker);
 
 // origin axeshelper
 const origin = new THREE.AxesHelper(300);
@@ -46,6 +77,35 @@ scene.add(origin);
 // Add the grid
 scene.add(grids);
 
+//raycaster
+// const points = [];  // Array to store THREE.Vector3 points
+// const raycaster = new THREE.Raycaster();
+// const pointer = new THREE.Vector2();
+// function onPointerMove(event) {
+//     pointer.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+//     pointer.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+//     raycaster.setFromCamera(pointer, camera);
+//     const intersects = raycaster.intersectObject(plane);
+
+//     if (intersects.length > 0) {
+//         points.push(intersects[0].point.clone());
+
+//         const geometry = new THREE.BufferGeometry().setFromPoints(points);
+
+//         if (!window.line) {
+//             const material = new THREE.LineBasicMaterial({ color: 0x000000 });
+//             window.line = new THREE.Line(geometry, material);
+//             scene.add(window.line);
+//         } else {
+//             window.line.geometry.dispose();
+//             window.line.geometry = geometry;
+//         }
+//     }
+// }
+
+//window.addEventListener('pointermove', onPointerMove);
+
 function main() {
 
   function animate() {
@@ -54,12 +114,15 @@ function main() {
 
     scaleLabels(baseLabelSize, camera);
 
+    console.log(camera.position);
+    console.log(camera.up);
+    console.log(camera.near, camera.far);
+
     controls.update();
     renderer.render(scene, camera);
   }
   animate();
 }
-
 // Run startup animation, then start main app
 //runStartupAnimation(renderer, main);
 main();
@@ -90,43 +153,24 @@ document.getElementById('fullscreen-btn').addEventListener('click', () => {
     }
   }
 });
-
-// Reset camera button
-document.getElementById('resetCamera-btn').addEventListener('click', () => {
-  camera.position.set(-500, 500, 500);
-  camera.up.set(0, 1, 0);
-  camera.lookAt(0, 0, 0);
-  controls.target.set(0, 0, 0);
-  controls.update();
-  camera.updateProjectionMatrix();
-
-  // Reset controls
-  controls.enableRotate = true;
-  // reset label positions
-  resetLabels();
+// Toggle grids
+document.getElementById('toggle-grid-btn').addEventListener('click', () => {
+  toggleGrids(scene);
 });
-
 // XY camera button
 document.getElementById('xyCamera-btn').addEventListener('click', () => {
-  const center = new THREE.Vector3(grids.pSize / 2, grids.pSize / 2, 0);
-  // Position the camera above the plane, looking down
-  camera.position.set(grids.pSize/2, grids.pSize/2, 500);
-  // Set "up" to +Z so the plane isn't rotated visually
-  camera.up.set(0, 1, 0);
-  // Look at the center of the plane
-  camera.lookAt(center);
+  // Yellow plane
+  setCameraPos(-halfPlane, halfPlane, halfPlane);
+  setCameraTarget(center);
   controls.enableRotate = false;
-  // Update OrbitControls target and sync
-  controls.target.copy(center);
-  camera.updateProjectionMatrix();
-
-  // Reset label positions
-  resetLabels();
-
-  // move Z label
-  grids.zLabel.position.set(0, -10, grids.pSize + 10);
+  // Lock vertical rotation
+  controls.minPolarAngle = Math.PI / 2;
+  controls.maxPolarAngle = Math.PI / 2;
+  // Lock horizontal rotation
+  controls.minAzimuthAngle = 0;
+  controls.maxAzimuthAngle = 0;
+  refreshConCam();
 });
-
 // ZY camera button
 document.getElementById('zyCamera-btn').addEventListener('click', () => {
   const center = new THREE.Vector3(0, grids.pSize / 2, grids.pSize / 2);
@@ -136,14 +180,7 @@ document.getElementById('zyCamera-btn').addEventListener('click', () => {
   controls.enableRotate = false;
   controls.target.copy(center);
   camera.updateProjectionMatrix();
-
-  // Reset label positions
-  resetLabels();
-
-  // move 
-  grids.xLabel.position.set(grids.pSize+10, -10, 0);
 });
-
 // XZ camera button
 document.getElementById('xzCamera-btn').addEventListener('click', () => {
   const center = new THREE.Vector3(grids.pSize / 2, 0, grids.pSize / 2);  
@@ -153,10 +190,16 @@ document.getElementById('xzCamera-btn').addEventListener('click', () => {
   controls.enableRotate = false;
   controls.target.copy(center);
   camera.updateProjectionMatrix();
-
-  // Reset label positions
-  resetLabels();
-
-  // move Y label
-  grids.yLabel.position.set(0, grids.pSize+10, -10);
+});
+// Return to orbit
+document.getElementById('orbit-btn').addEventListener('click', () => {
+  setCameraTarget(center);
+  controls.enableRotate = true;
+  // unlock vertical rotation
+  controls.minPolarAngle = 0; // allow looking up
+  controls.maxPolarAngle = Math.PI; // allow looking down
+  // unlock horizontal rotation
+  controls.minAzimuthAngle = -Infinity; // no limit left
+  controls.maxAzimuthAngle = Infinity; // no limit right
+  refreshConCam();
 });

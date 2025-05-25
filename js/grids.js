@@ -2,41 +2,45 @@ import * as THREE from 'three';
 
 // Plane geometry
 const pSize = 100;
-const griddivs = 10;
+const halfPlane = pSize/2;
+const griddivs = 20;
 
 const planeGeometry = new THREE.PlaneGeometry(pSize, pSize);
 
+const gapSize = 0.8;
 // cube gap
-const gap = 60;
+const gap = pSize * gapSize;
 
 const xyColour = 0xFFFF00;
 const zyColour = 0xFF0000;
 const xzColour = 0x0000FF;
-const abColour = 0xFFC0CB;
+const abColour = 0xFF5CFF;
 const cbColour = 0x008000;
-const acColour = 0xFFA700;
+const acColour = 0xFF7518;
 
-const xyMaterial = new THREE.MeshBasicMaterial({ color: xyColour, side: THREE.DoubleSide, transparent: true, opacity: 1,   polygonOffset: true,
+const planeOpacity = 0.7;
+
+const xyMaterial = new THREE.MeshBasicMaterial({ color: xyColour, side: THREE.DoubleSide, transparent: true, opacity: planeOpacity,   polygonOffset: true,
   polygonOffsetFactor: 1,
   polygonOffsetUnits: 1, depthWrite: true,
   blending: THREE.NoBlending });
-const zyMaterial = new THREE.MeshBasicMaterial({ color: zyColour, side: THREE.DoubleSide, transparent: true, opacity: 1,   polygonOffset: true,
+const zyMaterial = new THREE.MeshBasicMaterial({ color: zyColour, side: THREE.DoubleSide, transparent: true, opacity: planeOpacity,   polygonOffset: true,
   polygonOffsetFactor: 1,
   polygonOffsetUnits: 1, depthWrite: true,
   blending: THREE.NoBlending });
-const xzMaterial = new THREE.MeshBasicMaterial({ color: xzColour, side: THREE.DoubleSide, transparent: true, opacity: 1,   polygonOffset: true,
+const xzMaterial = new THREE.MeshBasicMaterial({ color: xzColour, side: THREE.DoubleSide, transparent: true, opacity: planeOpacity,   polygonOffset: true,
   polygonOffsetFactor: 1,
   polygonOffsetUnits: 1, depthWrite: true,
   blending: THREE.NoBlending});
-const abMaterial = new THREE.MeshBasicMaterial({ color: abColour, side: THREE.DoubleSide, transparent: true, opacity: 1,   polygonOffset: true,
+const abMaterial = new THREE.MeshBasicMaterial({ color: abColour, side: THREE.DoubleSide, transparent: true, opacity: planeOpacity,   polygonOffset: true,
   polygonOffsetFactor: 1,
   polygonOffsetUnits: 1, depthWrite: true,
   blending: THREE.NoBlending });
-const cbMaterial = new THREE.MeshBasicMaterial({ color: cbColour, side: THREE.DoubleSide, transparent: true, opacity: 1,   polygonOffset: true,
+const cbMaterial = new THREE.MeshBasicMaterial({ color: cbColour, side: THREE.DoubleSide, transparent: true, opacity: planeOpacity,   polygonOffset: true,
   polygonOffsetFactor: 1,
   polygonOffsetUnits: 1, depthWrite: true,
   blending: THREE.NoBlending });
-const acMaterial = new THREE.MeshBasicMaterial({ color: acColour, side: THREE.DoubleSide, transparent: true, opacity: 1,   polygonOffset: true,
+const acMaterial = new THREE.MeshBasicMaterial({ color: acColour, side: THREE.DoubleSide, transparent: true, opacity: planeOpacity,   polygonOffset: true,
   polygonOffsetFactor: 1,
   polygonOffsetUnits: 1, depthWrite: true,
   blending: THREE.NoBlending});
@@ -79,9 +83,9 @@ function createGridLines(size, divisions) {
 
   const material = new THREE.PointsMaterial({
     color: 0x000000,
-    size: 0.8, // adjust dot size here
+    size: 1, // adjust dot size here
     transparent: true,
-    opacity: 0.8,
+    opacity: 0.4,
   });
 
   return new THREE.Points(geometry, material);
@@ -94,6 +98,7 @@ const xzPlane = new THREE.Mesh(planeGeometry, xzMaterial);
 const abPlane = new THREE.Mesh(planeGeometry, abMaterial);
 const cbPlane = new THREE.Mesh(planeGeometry, cbMaterial);
 const acPlane = new THREE.Mesh(planeGeometry, acMaterial);
+
 // Create grids
 const xyGrid = createGridLines(pSize, griddivs);
 const zyGrid = createGridLines(pSize, griddivs);
@@ -102,6 +107,7 @@ const abGrid = createGridLines(pSize, griddivs);
 const cbGrid = createGridLines(pSize, griddivs);
 const acGrid = createGridLines(pSize, griddivs);
 
+
 // // Adjust the position of the grids to prevent z-fighting
 // const epsilon = 0.001; // small offset to prevent z-fighting
 
@@ -109,19 +115,20 @@ const acGrid = createGridLines(pSize, griddivs);
 // zyGrid.position.x =  epsilon;  // move slightly in front of YZ plane
 // xzGrid.position.y = -epsilon;  // move slightly below XZ plane
 
-// Combine planes and grids into groups
 const xyGroup = new THREE.Group();
-xyGroup.add(xyPlane, xyGrid);
 const zyGroup = new THREE.Group();
-zyGroup.add(zyPlane, zyGrid);
 const xzGroup = new THREE.Group();
-xzGroup.add(xzPlane, xzGrid);
 const abGroup = new THREE.Group();
-abGroup.add(abPlane, abGrid);
 const cbGroup = new THREE.Group();
-cbGroup.add(cbPlane, cbGrid);
 const acGroup = new THREE.Group();
-acGroup.add(acPlane, acGrid);
+
+// Add planes to groups
+xyGroup.add(xyPlane);
+zyGroup.add(zyPlane);
+xzGroup.add(xzPlane);
+abGroup.add(abPlane);
+cbGroup.add(cbPlane);
+acGroup.add(acPlane);
 
 // Set group rotation & positions
 xyGroup.position.set(pSize/2, pSize/2, -gap+0);
@@ -157,7 +164,7 @@ function createAxisLabel(text, color, position) {
   ctx.fillText(text, 64, 64);
 
   const texture = new THREE.CanvasTexture(canvas);
-  const material = new THREE.SpriteMaterial({ map: texture, transparent: true });
+  const material = new THREE.SpriteMaterial({ map: texture, transparent: true, opacity: 0.4 });
   const sprite = new THREE.Sprite(material);
   sprite.scale.set(6, 6, 1); // Adjust size as needed
   sprite.position.copy(position);
@@ -173,15 +180,16 @@ const cLabelColour = acColour;
 
 // Add axis labels
 const offset = pSize;
-const xLabel = createAxisLabel('X', xLabelColour, new THREE.Vector3(pSize/2, (-pSize/2)-10, (-pSize/2)-10));
-const yLabel = createAxisLabel('Y', yLabelColour, new THREE.Vector3((-pSize/2-10), pSize/2, (-pSize/2)-10));
-const zLabel = createAxisLabel('Z', zLabelColour, new THREE.Vector3((-pSize/2)-10, (-pSize/2)-10, pSize/2));
+const xLabel = createAxisLabel('X', xLabelColour, new THREE.Vector3(halfPlane, -gap, -gap));
+const yLabel = createAxisLabel('Y', yLabelColour, new THREE.Vector3(-gap, halfPlane, -gap));
+const zLabel = createAxisLabel('Z', zLabelColour, new THREE.Vector3(-gap, -gap, halfPlane));
 // Add labels for A, B, C planes
-const aLabel = createAxisLabel('A', aLabelColour, new THREE.Vector3(pSize/2, pSize+gap, pSize+gap));
-const bLabel = createAxisLabel('B', bLabelColour, new THREE.Vector3(pSize+gap, pSize/2, pSize+gap));
-const cLabel = createAxisLabel('C', cLabelColour, new THREE.Vector3(pSize+gap, pSize+gap, pSize/2));
+const aLabel = createAxisLabel('A', aLabelColour, new THREE.Vector3(halfPlane, pSize+gap, pSize+gap));
+const bLabel = createAxisLabel('B', bLabelColour, new THREE.Vector3(pSize+gap, halfPlane, pSize+gap));
+const cLabel = createAxisLabel('C', cLabelColour, new THREE.Vector3(pSize+gap, pSize+gap, halfPlane));
 
 grids.add(xLabel, yLabel, zLabel, aLabel, bLabel, cLabel);
+
 // Set the labels to be in front of the planes
 xLabel.renderOrder = 1;
 yLabel.renderOrder = 1;
@@ -206,12 +214,37 @@ grids.bLabel = bLabel;
 grids.cLabel = cLabel;
 
 // Check axis of planes
-const axes = new THREE.AxesHelper(300);
-//grids.zyGroup.add(axes);
+const axis = new THREE.AxesHelper(300);
+//grids.zyGroup.add(axis);
 
 export {
-  grids as default, pSize, xyGroup, xzGroup, zyGroup, abGroup, cbGroup, acGroup,
-  xLabel, yLabel, zLabel, aLabel, bLabel, cLabel};
+  grids as default, pSize, gap, halfPlane, xyGroup, xzGroup, zyGroup, abGroup, cbGroup, acGroup,
+  xLabel, yLabel, zLabel, aLabel, bLabel, cLabel
+};
+
+export function toggleGrids(scene) {
+
+  if (xyGroup.children.length == 2) {
+    xyGroup.remove(xyGrid);
+    zyGroup.remove(zyGrid);
+    xzGroup.remove(xzGrid);
+    abGroup.remove(abGrid);
+    cbGroup.remove(cbGrid);
+    acGroup.remove(acGrid);
+  } else {
+    // Add grids to groups
+    xyGroup.add(xyGrid);
+    zyGroup.add(zyGrid);
+    xzGroup.add(xzGrid);
+    abGroup.add(abGrid);
+    cbGroup.add(cbGrid);
+    acGroup.add(acGrid);
+  }
+}
+
+export function scaleGrids() {
+
+}
 
 export function resetLabels() {
   xLabel.position.set(offset, -10, -10);
