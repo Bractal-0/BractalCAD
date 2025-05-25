@@ -17,7 +17,7 @@ export function runStartupAnimation(renderer, onComplete) {
   const gridSize = pSize;
   const gridDivisions = 10;
 
-  // Add axes helper and grids/planes
+  // Add axes helper and cube
   const axesHelper = new THREE.AxesHelper(pSize);
   scene.add(axesHelper);
 

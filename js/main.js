@@ -5,23 +5,23 @@ import camera, * as cameraUtils from './camera.js';
 import { addResizeListener} from './resize.js';
 import scene from './scene.js';
 import createControls from './controls.js';
-import grids from './grids.js';
-import { toggleGrids, scaleGrids, scaleLabels } from './grids.js';
+import cube from './cube.js';
+import { toggleGrids, scaleGrids, scaleLabels } from './cube.js';
 //import * as TOOLS from 'tools';
 
 // Always need 3 objects
 // Scene, camera, renderer
 
 const cameraZoom = 3;
-const cameraZoomScale = 1000;
+const cameraFrustrumSize = 1000;
 const cameraNear = 0.1;
-// far should be pSize*2
+// camera.far should be pSize*2
 const cameraFar = 3000;
 
 camera.near = cameraNear;
 camera.far = cameraFar;
 // Distance between camera and planes
-const halfPlane = grids.pSize/2;
+const halfPlane = cube.pSize/2;
 const center = new THREE.Vector3(halfPlane, halfPlane, -halfPlane);
 
 const baseLabelSize = 40;
@@ -33,12 +33,12 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 // Orbit controls
 const controls = createControls(camera, renderer);
 // 1000 is your zoom scale
-addResizeListener(camera, renderer, cameraZoomScale);
+addResizeListener(camera, renderer, cameraFrustrumSize);
 
 // Set camera zoom
-//setZoom(camera, grids.pSize);
+//setZoom(camera, cube.pSize);
 
-setCameraPos(-halfPlane, halfPlane + halfPlane*2, halfPlane);
+setCameraPos(-cube.pSize, cube.pSize*2, cube.pSize);
 camera.zoom = cameraZoom;
 setCameraTarget(center);
 
@@ -66,7 +66,7 @@ function refreshConCam() {
 //   new THREE.SphereGeometry(5),
 //   new THREE.MeshBasicMaterial({ color: 0x000000 })
 // );
-// centerMarker.position.set(grids.pSize/2, grids.pSize/2, grids.pSize/2);
+// centerMarker.position.set(cube.pSize/2, cube.pSize/2, cube.pSize/2);
 // scene.add(centerMarker);
 
 // origin axeshelper
@@ -75,7 +75,7 @@ origin.position.set(0,0,0);
 scene.add(origin);
 
 // Add the grid
-scene.add(grids);
+scene.add(cube);
 
 //raycaster
 // const points = [];  // Array to store THREE.Vector3 points
@@ -173,8 +173,8 @@ document.getElementById('xyCamera-btn').addEventListener('click', () => {
 });
 // ZY camera button
 document.getElementById('zyCamera-btn').addEventListener('click', () => {
-  const center = new THREE.Vector3(0, grids.pSize / 2, grids.pSize / 2);
-  camera.position.set(500, grids.pSize/2, grids.pSize/2);
+  const center = new THREE.Vector3(0, cube.pSize / 2, cube.pSize / 2);
+  camera.position.set(500, cube.pSize/2, cube.pSize/2);
   camera.up.set(0, 1, 0);
   camera.lookAt(center);
   controls.enableRotate = false;
@@ -183,8 +183,8 @@ document.getElementById('zyCamera-btn').addEventListener('click', () => {
 });
 // XZ camera button
 document.getElementById('xzCamera-btn').addEventListener('click', () => {
-  const center = new THREE.Vector3(grids.pSize / 2, 0, grids.pSize / 2);  
-  camera.position.set(grids.pSize / 2, 500, grids.pSize / 2);
+  const center = new THREE.Vector3(cubepSize / 2, 0, cube.pSize / 2);  
+  camera.position.set(cube.pSize / 2, 500, cube.pSize / 2);
   camera.up.set(0, 0, -1);
   camera.lookAt(center);
   controls.enableRotate = false;

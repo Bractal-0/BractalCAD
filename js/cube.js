@@ -11,12 +11,12 @@ const gapSize = 0.8;
 // cube gap
 const gap = pSize * gapSize;
 
-const xyColour = 0xFFFF00;
-const zyColour = 0xFF0000;
-const xzColour = 0x0000FF;
-const abColour = 0xFF5CFF;
-const cbColour = 0x008000;
-const acColour = 0xFF7518;
+const xyColour = 0xFFFF00;  // Yellow
+const zyColour = 0xFF0000;  // Red
+const xzColour = 0x0000FF;  // Blue
+const abColour = 0xFF5CFF;  // Pink
+const cbColour = 0x008000;  // Green
+const acColour = 0xFF7518;  // Orange
 
 const planeOpacity = 0.7;
 
@@ -99,21 +99,13 @@ const abPlane = new THREE.Mesh(planeGeometry, abMaterial);
 const cbPlane = new THREE.Mesh(planeGeometry, cbMaterial);
 const acPlane = new THREE.Mesh(planeGeometry, acMaterial);
 
-// Create grids
+// Create cube
 const xyGrid = createGridLines(pSize, griddivs);
 const zyGrid = createGridLines(pSize, griddivs);
 const xzGrid = createGridLines(pSize, griddivs);
 const abGrid = createGridLines(pSize, griddivs);
 const cbGrid = createGridLines(pSize, griddivs);
 const acGrid = createGridLines(pSize, griddivs);
-
-
-// // Adjust the position of the grids to prevent z-fighting
-// const epsilon = 0.001; // small offset to prevent z-fighting
-
-// xyGrid.position.z =  epsilon;  // move slightly above XY plane
-// zyGrid.position.x =  epsilon;  // move slightly in front of YZ plane
-// xzGrid.position.y = -epsilon;  // move slightly below XZ plane
 
 const xyGroup = new THREE.Group();
 const zyGroup = new THREE.Group();
@@ -148,8 +140,8 @@ acGroup.rotation.x = -Math.PI/2;
 acGroup.position.set(pSize/2, pSize+gap, pSize/2);
 
 // Master group
-const grids = new THREE.Group();
-grids.add(xyGroup, xzGroup, zyGroup, abGroup, cbGroup, acGroup);
+const cube = new THREE.Group();
+cube.add(xyGroup, xzGroup, zyGroup, abGroup, cbGroup, acGroup);
 
 function createAxisLabel(text, color, position) {
   const canvas = document.createElement('canvas');
@@ -188,7 +180,7 @@ const aLabel = createAxisLabel('A', aLabelColour, new THREE.Vector3(halfPlane, p
 const bLabel = createAxisLabel('B', bLabelColour, new THREE.Vector3(pSize+gap, halfPlane, pSize+gap));
 const cLabel = createAxisLabel('C', cLabelColour, new THREE.Vector3(pSize+gap, pSize+gap, halfPlane));
 
-grids.add(xLabel, yLabel, zLabel, aLabel, bLabel, cLabel);
+cube.add(xLabel, yLabel, zLabel, aLabel, bLabel, cLabel);
 
 // Set the labels to be in front of the planes
 xLabel.renderOrder = 1;
@@ -199,26 +191,26 @@ bLabel.renderOrder = 1;
 cLabel.renderOrder = 1;
 
 // Attach named exports to the default export
-grids.pSize = pSize;
-grids.xyGroup = xyGroup;
-grids.xzGroup = xzGroup;
-grids.zyGroup = zyGroup;
-grids.abGroup = abGroup;
-grids.cbGroup = cbGroup;
-grids.acGroup = acGroup;
-grids.xLabel = xLabel;
-grids.yLabel = yLabel;
-grids.zLabel = zLabel;
-grids.aLabel = aLabel;
-grids.bLabel = bLabel;
-grids.cLabel = cLabel;
+cube.pSize = pSize;
+cube.xyGroup = xyGroup;
+cube.xzGroup = xzGroup;
+cube.zyGroup = zyGroup;
+cube.abGroup = abGroup;
+cube.cbGroup = cbGroup;
+cube.acGroup = acGroup;
+cube.xLabel = xLabel;
+cube.yLabel = yLabel;
+cube.zLabel = zLabel;
+cube.aLabel = aLabel;
+cube.bLabel = bLabel;
+cube.cLabel = cLabel;
 
 // Check axis of planes
 const axis = new THREE.AxesHelper(300);
-//grids.zyGroup.add(axis);
+//cube.zyGroup.add(axis);
 
 export {
-  grids as default, pSize, gap, halfPlane, xyGroup, xzGroup, zyGroup, abGroup, cbGroup, acGroup,
+  cube as default, pSize, gap, halfPlane, xyGroup, xzGroup, zyGroup, abGroup, cbGroup, acGroup,
   xLabel, yLabel, zLabel, aLabel, bLabel, cLabel
 };
 
@@ -232,7 +224,7 @@ export function toggleGrids(scene) {
     cbGroup.remove(cbGrid);
     acGroup.remove(acGrid);
   } else {
-    // Add grids to groups
+    // Add cube to groups
     xyGroup.add(xyGrid);
     zyGroup.add(zyGrid);
     xzGroup.add(xzGrid);
@@ -246,20 +238,14 @@ export function scaleGrids() {
 
 }
 
-export function resetLabels() {
-  xLabel.position.set(offset, -10, -10);
-  yLabel.position.set(-10, offset, -10);
-  zLabel.position.set(-10, -10, offset);
-}
-
     // --- Axis label scaling (optional, for consistent size) ---
 export function scaleLabels(scale, camera) {
   const baseLabelSize = scale;
   const labelScale = baseLabelSize / camera.zoom;
-  grids.xLabel.scale.set(labelScale, labelScale, labelScale);
-  grids.yLabel.scale.set(labelScale, labelScale, labelScale);
-  grids.zLabel.scale.set(labelScale, labelScale, labelScale);
-  grids.aLabel.scale.set(labelScale, labelScale, labelScale);
-  grids.bLabel.scale.set(labelScale, labelScale, labelScale);
-  grids.cLabel.scale.set(labelScale, labelScale, labelScale);
+  cube.xLabel.scale.set(labelScale, labelScale, labelScale);
+  cube.yLabel.scale.set(labelScale, labelScale, labelScale);
+  cube.zLabel.scale.set(labelScale, labelScale, labelScale);
+  cube.aLabel.scale.set(labelScale, labelScale, labelScale);
+  cube.bLabel.scale.set(labelScale, labelScale, labelScale);
+  cube.cLabel.scale.set(labelScale, labelScale, labelScale);
 }

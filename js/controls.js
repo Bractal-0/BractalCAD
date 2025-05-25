@@ -30,4 +30,4 @@ export default function createControls(camera, renderer) {
 
   // For orthographic camera: scale grid inversely to camera zoom
   // const scale = 0.5 / camera.zoom;
-  // gridsGroup.scale.set(scale, scale, scale);
+  // cubeGroup.scale.set(scale, scale, scale);
