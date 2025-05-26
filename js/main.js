@@ -40,9 +40,9 @@ let raycaster = new THREE.Raycaster();
 let INTERSECTED;
 
 // origin axeshelper
-// const origin = new THREE.AxesHelper(300);
-// origin.position.set(0,0,0);
-// scene.add(origin);
+const origin = new THREE.AxesHelper(300);
+origin.position.set(0,0,0);
+scene.add(origin);
 
 init();
 
@@ -121,13 +121,12 @@ function getMeshesFromGroup(cube) {
 }
 
 function render () {
-
   camera.updateMatrixWorld();
   raycasting();
 }
 
 function raycasting() {
-    // find intersections
+  // find intersections
 	raycaster.setFromCamera(pointer, camera);
   const intersects = raycaster.intersectObjects(meshChildren, false);
 
@@ -157,20 +156,6 @@ function raycasting() {
 document.addEventListener('pointermove', onPointerMove, false);
 
 let isDrawing = false;
-
-// while (isDrawing === true) {
-//   //raycaster
-//   const points = [];  // Array to store THREE.Vector3 points
-
-//     raycaster.setFromCamera(pointer, camera);
-//     const intersects = raycaster.intersectObject(plane);
-
-// }
-
-function onPointerMove(e) {
-  pointer.x = ( e.clientX / window.innerWidth ) * 2 - 1;
-  pointer.y = - ( e.clientY / window.innerHeight ) * 2 + 1;
-}
 
 // OrbitControls can derive rotation or lookat by position and target.
 
@@ -214,10 +199,52 @@ function unlockRotation() {
   refreshConCam();
 }
 
+function onPointerMove(e) {
+  pointer.x = ( e.clientX / window.innerWidth ) * 2 - 1;
+  pointer.y = - ( e.clientY / window.innerHeight ) * 2 + 1;
+}
+
+function drawLine() {
+  // Create a new line
+  const geometry = new THREE.BufferGeometry();
+  const material = new THREE.LineBasicMaterial({ color: 0x000000, linewidth: 2 });
+
+  // Set the line's geometry
+  const start = new THREE.Vector3(2, 2, -cube.gap);
+
+  const end = new THREE.Vector3( 8, 8, -cube.gap);
+
+  geometry.setFromPoints([start, end]);
+
+  const line = new THREE.Line(geometry, material);
+
+  // Add the line to the scene
+  scene.add(line);
+}
+
+drawLine();
+
+function addToScene(line) {
+  // Get the current position of the pointer
+}
+
+while (isDrawing === true) {
+  //raycaster
+  const points = [];  // Array to store THREE.Vector3 points
+
+  raycaster.setFromCamera(pointer, camera);
+  const intersects = raycaster.intersectObject(plane);
+
+
+  addToScene(line);
+}
+
+
+
 // && which tool
 window.addEventListener('mousedown', (e) => {
   // 0 is left button
-  if (e.button === 0) isDrawing = true;
+  if (e.button === 0 && INTERSECTED) isDrawing = true;
 });
 
 window.addEventListener('mouseup', (e) => {

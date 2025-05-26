@@ -11,7 +11,7 @@ let gapScale = 0.7;
 // cube gap
 let gap = pSize * gapScale;
 
-let labelScale = 0.4;
+let labelScale = 0.2;
 let labelSize = 10 * labelScale;
 
 // min label = 
