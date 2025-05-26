@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 
 const aspect = window.innerWidth / window.innerHeight;
-const frustrumSize = 1000;
+const frustrumSize = 50;
 
 // Will need to set zoomscale, zoom, and far to
 // taking user input for grid size.
@@ -11,7 +11,9 @@ const camera = new THREE.OrthographicCamera(
    frustrumSize / 2,
   -frustrumSize / 2,
   0.1,
-  3000
+  100
 );
 
-export default camera;
+camera.frustumSize = frustrumSize;
+
+export {camera as default, frustrumSize};

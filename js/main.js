@@ -12,22 +12,28 @@ import { toggleGrids, scaleGrids, scaleLabels } from './cube.js';
 // Always need 3 objects
 // Scene, camera, renderer
 
-const cameraZoom = 3;
-const cameraFrustrumSize = 1000;
+let zoomScale = 13 / cube.pSize;
+let cameraZoom = zoomScale;
+let frustrumSize = 50;
 const cameraNear = 0.1;
 // camera.far should be pSize*2
-const cameraFar = 3000;
+let cameraFar = cube.pSize*4 + cube.gap*4;
 
 camera.zoom = cameraZoom;
 camera.near = cameraNear;
 camera.far = cameraFar;
 
+const pointer = new THREE.Vector2();
+let raycaster = new THREE.Raycaster();
+
+let INTERSECTED;
+
+const radius = 25;
+
 // input number button for cube gap with max and min.
 
 // Center of cube
 const center = new THREE.Vector3(cube.halfPlane, cube.halfPlane, -cube.halfPlane);
-
-const baseLabelSize = 40;
 
 const renderer = new THREE.WebGLRenderer({ canvas: document.querySelector('#background') });
 renderer.setPixelRatio(window.devicePixelRatio);
@@ -35,8 +41,10 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 
 // Orbit controls
 const controls = createControls(camera, renderer);
+// Disable left mouse button
+controls.mouseButtons.LEFT = null;
 
-addResizeListener(camera, renderer, cameraFrustrumSize);
+addResizeListener(camera, frustrumSize, renderer);
 
 // Set camera zoom
 //setZoom(camera, cube.pSize);
@@ -44,6 +52,107 @@ addResizeListener(camera, renderer, cameraFrustrumSize);
 setCameraPos(-cube.pSize-cube.gap, cube.pSize*2+cube.gap, cube.pSize+cube.gap);
 setCameraTarget(center);
 camera.zoom = cameraZoom;
+
+// Get all mesh children inside the 'cube' group (recursively)
+// For raycasting
+const meshChildren = getMeshesFromGroup(cube);
+
+// const centerMarker = new THREE.Mesh(
+//   new THREE.SphereGeometry(5),
+//   new THREE.MeshBasicMaterial({ color: 0x000000 })
+// );
+// centerMarker.position.set(cube.pSize/2, cube.pSize/2, cube.pSize/2);
+// scene.add(centerMarker);
+
+// origin axeshelper
+// const origin = new THREE.AxesHelper(300);
+// origin.position.set(0,0,0);
+// scene.add(origin);
+
+// Add the grid
+scene.add(cube);
+
+function main() {
+
+  function animate() {
+    // tells browser to perform animation
+    requestAnimationFrame(animate);
+
+    scaleLabels(camera);
+
+    // console.log(camera.position);
+    // // console.log(camera.up);
+
+    // console.log(camera.zoom);
+    // console.log(camera.far);
+
+    render();
+    controls.update();
+    renderer.render(scene, camera);
+  }
+  animate();
+}
+
+// Run startup animation, then start main app
+//runStartupAnimation(renderer, main);
+main();
+
+function getMeshesFromGroup(cube) {
+  const meshes = [];
+  cube.traverse((child) => {
+    if (child instanceof THREE.Mesh) {
+      meshes.push(child);
+      //console.log('Mesh found:', child.name);
+    }
+  });
+  return meshes;
+}
+
+function render () {
+  // find intersections
+	raycaster.setFromCamera(pointer, camera);
+  const intersects = raycaster.intersectObjects(meshChildren, false);
+
+  if (intersects.length > 0) {
+
+    const intersection = intersects[0];
+    const hitObject = intersection.object;
+
+    // Dot product between face normal and ray direction
+    // If < 0 → hit the front side
+    const front = intersection.face.normal.clone().applyMatrix3(
+      new THREE.Matrix3().getNormalMatrix(hitObject.matrixWorld)
+    ).normalize();
+
+    const dot = front.dot(raycaster.ray.direction);
+
+  if (dot < 0) {
+    // Ray hit the front face
+    //console.log('Front side hit:', hitObject.name);
+    INTERSECTED = hitObject;
+  }
+  } else {
+    INTERSECTED = null;
+  }
+}
+
+document.addEventListener('pointermove', onPointerMove, false);
+
+let isDrawing = false;
+
+// while (isDrawing === true) {
+//   //raycaster
+//   const points = [];  // Array to store THREE.Vector3 points
+
+//     raycaster.setFromCamera(pointer, camera);
+//     const intersects = raycaster.intersectObject(plane);
+
+// }
+
+function onPointerMove(e) {
+  pointer.x = ( e.clientX / window.innerWidth ) * 2 - 1;
+  pointer.y = - ( e.clientY / window.innerHeight ) * 2 + 1;
+}
 
 // OrbitControls can derive rotation or lookat by position and target.
 
@@ -87,74 +196,6 @@ function unlockRotation() {
   refreshConCam();
 }
 
-// const centerMarker = new THREE.Mesh(
-//   new THREE.SphereGeometry(5),
-//   new THREE.MeshBasicMaterial({ color: 0x000000 })
-// );
-// centerMarker.position.set(cube.pSize/2, cube.pSize/2, cube.pSize/2);
-// scene.add(centerMarker);
-
-// origin axeshelper
-const origin = new THREE.AxesHelper(300);
-origin.position.set(0,0,0);
-scene.add(origin);
-
-// Add the grid
-scene.add(cube);
-
-function main() {
-
-  function animate() {
-    // tells browser to perform animation
-    requestAnimationFrame(animate);
-
-    scaleLabels(baseLabelSize, camera);
-
-    // console.log(camera.position);
-    // console.log(camera.up);
-
-    controls.update();
-    renderer.render(scene, camera);
-  }
-  animate();
-}
-// Run startup animation, then start main app
-//runStartupAnimation(renderer, main);
-main();
-
-const isDrawing = false;
-
-while (isDrawing === true) {
-  //raycaster
-  const points = [];  // Array to store THREE.Vector3 points
-  const raycaster = new THREE.Raycaster();
-  const pointer = new THREE.Vector2();
-  function onPointerMove(e) {
-      pointer.x = ( e.clientX / window.innerWidth ) * 2 - 1;
-      pointer.y = - ( e.clientY / window.innerHeight ) * 2 + 1;
-
-      raycaster.setFromCamera(pointer, camera);
-      const intersects = raycaster.intersectObject(plane);
-
-      if (intersects.length > 0) {
-          points.push(intersects[0].point.clone());
-
-          const geometry = new THREE.BufferGeometry().setFromPoints(points);
-
-          if (!window.line) {
-              const material = new THREE.LineBasicMaterial({ color: 0x000000 });
-              window.line = new THREE.Line(geometry, material);
-              scene.add(window.line);
-          } else {
-              window.line.geometry.dispose();
-              window.line.geometry = geometry;
-          }
-      }
-  }
-}
-
-
-
 // && which tool
 window.addEventListener('mousedown', (e) => {
   // 0 is left button
@@ -165,10 +206,6 @@ window.addEventListener('mouseup', (e) => {
   // 0 is left button
   if (e.button === 0) isDrawing = false;
 });
-
-
-
-controls.mouseButtons.LEFT = null;
 
 window.addEventListener('keydown', (e) => {
   if (e.code === 'Space') {

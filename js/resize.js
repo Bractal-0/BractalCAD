@@ -1,4 +1,4 @@
-export function addResizeListener(camera, renderer, frustrumSize = 1000) {
+export function addResizeListener(camera, frustrumSize = 10, renderer) {
   function onWindowResize() {
     const aspect = window.innerWidth / window.innerHeight;
 

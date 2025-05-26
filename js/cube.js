@@ -1,15 +1,20 @@
 import * as THREE from 'three';
 
 // Plane geometry
-const pSize = 100;
-const halfPlane = pSize/2;
-const griddivs = 20;
+let pSize = 10;
+let halfPlane = pSize/2;
+let griddivs = 20;
 
 const planeGeometry = new THREE.PlaneGeometry(pSize, pSize);
 
-const gapSize = 0.999;
+let gapScale = 0.7;
 // cube gap
-const gap = pSize * gapSize;
+let gap = pSize * gapScale;
+
+let labelScale = 0.4;
+let labelSize = 10 * labelScale;
+
+// min label = 
 
 const xyColour = 0xFFFF00;  // Yellow
 const zyColour = 0xFF0000;  // Red
@@ -18,7 +23,7 @@ const abColour = 0xFF5CFF;  // Pink
 const cbColour = 0x008000;  // Green
 const acColour = 0xFF7518;  // Orange
 
-const planeOpacity = 0.7;
+const planeOpacity = 0.6;
 
 const xyMaterial = new THREE.MeshBasicMaterial({ color: xyColour, side: THREE.DoubleSide, transparent: true, opacity: planeOpacity,   polygonOffset: true,
   polygonOffsetFactor: 1,
@@ -99,6 +104,14 @@ const abPlane = new THREE.Mesh(planeGeometry, abMaterial);
 const cbPlane = new THREE.Mesh(planeGeometry, cbMaterial);
 const acPlane = new THREE.Mesh(planeGeometry, acMaterial);
 
+// Set plane names
+xyPlane.name = 'XY Plane: YELLOW';
+zyPlane.name = 'ZY Plane: RED';
+xzPlane.name = 'XZ Plane: BLUE';
+abPlane.name = 'AB Plane: PINK';
+cbPlane.name = 'CB Plane: GREEN';
+acPlane.name = 'AC Plane: ORANGE';
+
 // Create grids
 const xyGrid = createGridLines(pSize, griddivs);
 const zyGrid = createGridLines(pSize, griddivs);
@@ -166,26 +179,19 @@ function createAxisLabel(text, color, position) {
   const texture = new THREE.CanvasTexture(canvas);
   const material = new THREE.SpriteMaterial({ map: texture, transparent: true, opacity: 0.4 });
   const sprite = new THREE.Sprite(material);
-  sprite.scale.set(6, 6, 1); // Adjust size as needed
+  sprite.scale.set(labelSize, labelSize, 1); // Adjust size as needed
   sprite.position.copy(position);
   return sprite;
 }
 
-const xLabelColour = xyColour;
-const yLabelColour = zyColour;
-const zLabelColour = xzColour;
-const aLabelColour = abColour;
-const bLabelColour = cbColour;
-const cLabelColour = acColour;
-
 // Add axis labels
-const xLabel = createAxisLabel('X', xLabelColour, new THREE.Vector3(halfPlane, -gap, -gap));
-const yLabel = createAxisLabel('Y', yLabelColour, new THREE.Vector3(-gap, halfPlane, -gap));
-const zLabel = createAxisLabel('Z', zLabelColour, new THREE.Vector3(-gap, -gap, halfPlane));
+const xLabel = createAxisLabel('X', 0x000000, new THREE.Vector3(halfPlane, -gap, -gap));
+const yLabel = createAxisLabel('Y', 0x000000, new THREE.Vector3(-gap, halfPlane, -gap));
+const zLabel = createAxisLabel('Z', 0x000000, new THREE.Vector3(-gap, -gap, halfPlane));
 // Add labels for A, B, C planes
-const aLabel = createAxisLabel('A', aLabelColour, new THREE.Vector3(halfPlane, pSize+gap, pSize+gap));
-const bLabel = createAxisLabel('B', bLabelColour, new THREE.Vector3(pSize+gap, halfPlane, pSize+gap));
-const cLabel = createAxisLabel('C', cLabelColour, new THREE.Vector3(pSize+gap, pSize+gap, halfPlane));
+const aLabel = createAxisLabel('A', 0x000000, new THREE.Vector3(halfPlane, pSize+gap, pSize+gap));
+const bLabel = createAxisLabel('B', 0x000000, new THREE.Vector3(pSize+gap, halfPlane, pSize+gap));
+const cLabel = createAxisLabel('C', 0x000000, new THREE.Vector3(pSize+gap, pSize+gap, halfPlane));
 
 cube.add(xLabel, yLabel, zLabel, aLabel, bLabel, cLabel);
 
@@ -244,9 +250,8 @@ export function scaleGrids() {
 }
 
     // --- Axis label scaling (optional, for consistent size) ---
-export function scaleLabels(scale, camera) {
-  const baseLabelSize = scale;
-  const labelScale = baseLabelSize / camera.zoom;
+export function scaleLabels(camera) {
+  const labelScale = labelSize / camera.zoom;
   cube.xLabel.scale.set(labelScale, labelScale, labelScale);
   cube.yLabel.scale.set(labelScale, labelScale, labelScale);
   cube.zLabel.scale.set(labelScale, labelScale, labelScale);
