@@ -105,12 +105,12 @@ const cbPlane = new THREE.Mesh(planeGeometry, cbMaterial);
 const acPlane = new THREE.Mesh(planeGeometry, acMaterial);
 
 // Set plane names
-xyPlane.name = 'XY Plane: YELLOW';
-zyPlane.name = 'ZY Plane: RED';
-xzPlane.name = 'XZ Plane: BLUE';
-abPlane.name = 'AB Plane: PINK';
-cbPlane.name = 'CB Plane: GREEN';
-acPlane.name = 'AC Plane: ORANGE';
+xyPlane.name = 'XY : YELLOW';
+zyPlane.name = 'ZY : RED';
+xzPlane.name = 'XZ : BLUE';
+abPlane.name = 'AB : PINK';
+cbPlane.name = 'CB : GREEN';
+acPlane.name = 'AC : ORANGE';
 
 // Create grids
 const xyGrid = createGridLines(pSize, griddivs);

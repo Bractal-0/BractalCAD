@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { GUI } from 'three/examples/jsm/libs/lil-gui.module.min.js';
 import { runStartupAnimation } from './startupAnimation.js';
-import camera, * as cameraUtils from './camera.js';
+import camera from './camera.js';
 import { addResizeListener} from './resize.js';
 import scene from './scene.js';
 import createControls from './controls.js';
@@ -12,90 +12,102 @@ import { toggleGrids, scaleGrids, scaleLabels } from './cube.js';
 // Always need 3 objects
 // Scene, camera, renderer
 
+let renderer, controls, center;
+
+// White background
+let background = new THREE.Color(0xffffff);
+
+// Camera settings
 let zoomScale = 13 / cube.pSize;
 let cameraZoom = zoomScale;
 let frustrumSize = 50;
 const cameraNear = 0.1;
-// camera.far should be pSize*2
 let cameraFar = cube.pSize*4 + cube.gap*4;
 
 camera.zoom = cameraZoom;
 camera.near = cameraNear;
 camera.far = cameraFar;
 
+// Cube settings
+// input number button for cube gap with max and min.
+// Array to hold all mesh children for raycasting
+let meshChildren = [];
+
+// Raycast
 const pointer = new THREE.Vector2();
 let raycaster = new THREE.Raycaster();
 
 let INTERSECTED;
-
-const radius = 25;
-
-// input number button for cube gap with max and min.
-
-// Center of cube
-const center = new THREE.Vector3(cube.halfPlane, cube.halfPlane, -cube.halfPlane);
-
-const renderer = new THREE.WebGLRenderer({ canvas: document.querySelector('#background') });
-renderer.setPixelRatio(window.devicePixelRatio);
-renderer.setSize(window.innerWidth, window.innerHeight);
-
-// Orbit controls
-const controls = createControls(camera, renderer);
-// Disable left mouse button
-controls.mouseButtons.LEFT = null;
-
-addResizeListener(camera, frustrumSize, renderer);
-
-// Set camera zoom
-//setZoom(camera, cube.pSize);
-
-setCameraPos(-cube.pSize-cube.gap, cube.pSize*2+cube.gap, cube.pSize+cube.gap);
-setCameraTarget(center);
-camera.zoom = cameraZoom;
-
-// Get all mesh children inside the 'cube' group (recursively)
-// For raycasting
-const meshChildren = getMeshesFromGroup(cube);
-
-// const centerMarker = new THREE.Mesh(
-//   new THREE.SphereGeometry(5),
-//   new THREE.MeshBasicMaterial({ color: 0x000000 })
-// );
-// centerMarker.position.set(cube.pSize/2, cube.pSize/2, cube.pSize/2);
-// scene.add(centerMarker);
 
 // origin axeshelper
 // const origin = new THREE.AxesHelper(300);
 // origin.position.set(0,0,0);
 // scene.add(origin);
 
-// Add the grid
-scene.add(cube);
+init();
 
-function main() {
+function init () {
+  scene.background = background;
 
-  function animate() {
-    // tells browser to perform animation
-    requestAnimationFrame(animate);
+  // // Add lights for 3d object
+  // const ambientLight = new THREE.AmbientLight(0x404040, 1);
+  // scene.add(ambientLight);
 
-    scaleLabels(camera);
+  // const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+  // directionalLight.position.set(1, 1, 1).normalize();
+  // scene.add(directionalLight);
 
-    // console.log(camera.position);
-    // // console.log(camera.up);
+  renderer = new THREE.WebGLRenderer({ canvas: document.querySelector('#background') });
+  renderer.setPixelRatio(window.devicePixelRatio);
+  renderer.setSize(window.innerWidth, window.innerHeight);
 
-    // console.log(camera.zoom);
-    // console.log(camera.far);
+  // Orbit controls
+  controls = createControls(camera, renderer);
+  // Disable left mouse button
+  controls.mouseButtons.LEFT = null;
 
-    render();
-    controls.update();
-    renderer.render(scene, camera);
-  }
-  animate();
+  // Set camera position and orientation;
+  // Center of cube
+  center = new THREE.Vector3(cube.halfPlane, cube.halfPlane, -cube.halfPlane);
+  
+  setCameraPos(-cube.pSize-cube.gap, cube.pSize*2+cube.gap, cube.pSize+cube.gap);
+  setCameraTarget(center);
+  camera.zoom = cameraZoom;
+  refreshConCam();
+
+  addResizeListener(camera, frustrumSize, renderer);
+
+  // Get all mesh children inside the 'cube' group (recursively)
+  // For raycasting
+  meshChildren = getMeshesFromGroup(cube);
+
+  // Add GUI controls
+  // const gui = new GUI();
+  // gui.add(DOM, 'gap', 0.01, 10).name('interface').onChange(() => {
+  //   scaleGrids(cube);
+  //   scaleLabels(camera);
+  // });
+
+  // Add the CAD cube to scene
+  scene.add(cube);
 }
+
+function animate() {
+  // tells browser to perform animation
+  requestAnimationFrame(animate);
+
+  scaleLabels(camera);
+
+  // console.log(camera.up);
+
+  render();
+  controls.update();
+  renderer.render(scene, camera);
+}
+animate();
 
 // Run startup animation, then start main app
 //runStartupAnimation(renderer, main);
-main();
 
 function getMeshesFromGroup(cube) {
   const meshes = [];
@@ -109,7 +121,13 @@ function getMeshesFromGroup(cube) {
 }
 
 function render () {
-  // find intersections
+
+  camera.updateMatrixWorld();
+  raycasting();
+}
+
+function raycasting() {
+    // find intersections
 	raycaster.setFromCamera(pointer, camera);
   const intersects = raycaster.intersectObjects(meshChildren, false);
 
