@@ -7,12 +7,16 @@ import scene from './scene.js';
 import createControls from './controls.js';
 import cube from './cube.js';
 import { toggleGrids, scaleGrids, scaleLabels } from './cube.js';
-//import * as TOOLS from 'tools';
+import line from '/js/tools/line.js';
+import ray from './ray.js';
+import { hitObject, frontOfPlane } from './rayHit.js';
 
 // Always need 3 objects
 // Scene, camera, renderer
 
-let renderer, controls, center;
+let renderer, controls;
+
+let center, defaultOrbit;
 
 // White background
 let background = new THREE.Color(0xffffff);
@@ -30,21 +34,24 @@ camera.far = cameraFar;
 
 // Cube settings
 // input number button for cube gap with max and min.
-// Array to hold all mesh children for raycasting
-let meshChildren = [];
 
-// Raycast
-const pointer = new THREE.Vector2();
-let raycaster = new THREE.Raycaster();
+let lineTool = false;
 
-let INTERSECTED;
+// Check if drawing
+let isDrawing = false;
+
+let spaceDown = false;
 
 // origin axeshelper
 const origin = new THREE.AxesHelper(300);
 origin.position.set(0,0,0);
 scene.add(origin);
 
+// Run startup animation, then start main app
+//runStartupAnimation(renderer, main);
+
 init();
+animate();
 
 function init () {
   scene.background = background;
@@ -69,17 +76,14 @@ function init () {
   // Set camera position and orientation;
   // Center of cube
   center = new THREE.Vector3(cube.halfPlane, cube.halfPlane, -cube.halfPlane);
-  
-  setCameraPos(-cube.pSize-cube.gap, cube.pSize*2+cube.gap, cube.pSize+cube.gap);
+  defaultOrbit = new THREE.Vector3(-cube.pSize-cube.gap, cube.pSize*2+cube.gap, cube.pSize+cube.gap);
+
+  setCameraPos(defaultOrbit);
   setCameraTarget(center);
   camera.zoom = cameraZoom;
   refreshConCam();
 
   addResizeListener(camera, frustrumSize, renderer);
-
-  // Get all mesh children inside the 'cube' group (recursively)
-  // For raycasting
-  meshChildren = getMeshesFromGroup(cube);
 
   // Add GUI controls
   // const gui = new GUI();
@@ -93,115 +97,64 @@ function init () {
 }
 
 function animate() {
-  // tells browser to perform animation
-  requestAnimationFrame(animate);
-
-  scaleLabels(camera);
-
   // console.log(camera.up);
-
   render();
-  controls.update();
-  renderer.render(scene, camera);
-}
-animate();
-
-// Run startup animation, then start main app
-//runStartupAnimation(renderer, main);
-
-function getMeshesFromGroup(cube) {
-  const meshes = [];
-  cube.traverse((child) => {
-    if (child instanceof THREE.Mesh) {
-      meshes.push(child);
-      //console.log('Mesh found:', child.name);
-    }
-  });
-  return meshes;
 }
 
 function render () {
+    // tells browser to perform animation
+  requestAnimationFrame(animate);
+
   camera.updateMatrixWorld();
-  raycasting();
+
+  // console.log('Camera position:', camera.position);
+
+  scaleLabels(camera);
+
+  hitObject();
+
+  //drawing(isDrawing);
+  //console.log(ray.pointer.x, ray.pointer.y);
+
+  controls.update();
+  renderer.render(scene, camera);
 }
-
-function raycasting() {
-  // find intersections
-	raycaster.setFromCamera(pointer, camera);
-  const intersects = raycaster.intersectObjects(meshChildren, false);
-
-  if (intersects.length > 0) {
-
-    const intersection = intersects[0];
-    const hitObject = intersection.object;
-
-    // Dot product between face normal and ray direction
-    // If < 0 → hit the front side
-    const front = intersection.face.normal.clone().applyMatrix3(
-      new THREE.Matrix3().getNormalMatrix(hitObject.matrixWorld)
-    ).normalize();
-
-    const dot = front.dot(raycaster.ray.direction);
-
-  if (dot < 0) {
-    // Ray hit the front face
-    //console.log('Front side hit:', hitObject.name);
-    INTERSECTED = hitObject;
-  }
-  } else {
-    INTERSECTED = null;
-  }
-}
-
-document.addEventListener('pointermove', onPointerMove, false);
-
-let isDrawing = false;
 
 // OrbitControls can derive rotation or lookat by position and target.
 
-function setCameraTarget(target) {
-  camera.lookAt(target);
-  controls.target.copy(target);
+function setCameraPos(vector) {
+  camera.position.set(vector.x, vector.y, vector.z);
   refreshConCam();
 }
 
-function setCameraPos(x, y , z) {
-  camera.position.set(x, y, z);
+function setCameraTarget(vector) {
+  camera.lookAt(vector);
+  controls.target.copy(vector);
+  refreshConCam();
+}
+
+function resetCamera() {
+  setCameraPos(defaultOrbit);
+  setCameraTarget(center);
   refreshConCam();
 }
 
 function refreshConCam() {
   controls.update();
   camera.updateProjectionMatrix();
+  camera.updateMatrixWorld();
 }
 
+// Lock rotation function
 //  Might need to adjust for top and bottom planes
 function lockRotation() {
   controls.enableRotate = false;
-  // Lock vertical rotation
-  // controls.minPolarAngle = Math.PI / 2;
-  // controls.maxPolarAngle = Math.PI / 2;
-  // // Lock horizontal rotation
-  // controls.minAzimuthAngle = 0;
-  // controls.maxAzimuthAngle = 0;
   refreshConCam();
 }
 
 function unlockRotation() {
-  camera.up.set(0, 1, 0);
   controls.enableRotate = true;
-  // unlock vertical rotation
-  // controls.minPolarAngle = 0; // allow looking up
-  // controls.maxPolarAngle = Math.PI; // allow looking down
-  // // unlock horizontal rotation
-  // controls.minAzimuthAngle = -Infinity; // no limit left
-  // controls.maxAzimuthAngle = Infinity; // no limit right
   refreshConCam();
-}
-
-function onPointerMove(e) {
-  pointer.x = ( e.clientX / window.innerWidth ) * 2 - 1;
-  pointer.y = - ( e.clientY / window.innerHeight ) * 2 + 1;
 }
 
 function drawLine() {
@@ -224,27 +177,25 @@ function drawLine() {
 
 drawLine();
 
-function addToScene(line) {
-  // Get the current position of the pointer
+function drawing(start) {
+
+  while (isDrawing === true) {
+    //raycaster
+    const points = [];  // Array to store THREE.Vector3 points
+
+    scene.add(line);
+  }
+
 }
-
-while (isDrawing === true) {
-  //raycaster
-  const points = [];  // Array to store THREE.Vector3 points
-
-  raycaster.setFromCamera(pointer, camera);
-  const intersects = raycaster.intersectObject(plane);
-
-
-  addToScene(line);
-}
-
-
 
 // && which tool
 window.addEventListener('mousedown', (e) => {
   // 0 is left button
-  if (e.button === 0 && INTERSECTED) isDrawing = true;
+  if (e.button === 0) {
+
+  } else if (e.button === 2) { 
+    // Right click
+  }
 });
 
 window.addEventListener('mouseup', (e) => {
@@ -254,12 +205,14 @@ window.addEventListener('mouseup', (e) => {
 
 window.addEventListener('keydown', (e) => {
   if (e.code === 'Space') {
+    spaceDown = true;
     controls.mouseButtons.LEFT = THREE.MOUSE.PAN;
   }
 });
 
 window.addEventListener('keyup', (e) => {
   if (e.code === 'Space') {
+    spaceDown = false;
     // disables left mouse action
     controls.mouseButtons.LEFT = null;
   }
@@ -268,6 +221,13 @@ window.addEventListener('keyup', (e) => {
 // line tool button
 document.getElementById('line-btn').addEventListener('click', () => {
   // Switch tool to line
+  if(lineTool === false) {
+    lineTool = true;
+    console.log('Line tool enabled');
+  } else {
+    lineTool = false;
+    console.log('Line tool disabled');
+  }
 });
 
 // Fullscreen button
@@ -302,42 +262,41 @@ document.getElementById('toggle-grid-btn').addEventListener('click', () => {
 });
 // XY Yellow plane camera button
 document.getElementById('xyCamera-btn').addEventListener('click', () => {
-  setCameraPos(cube.halfPlane, cube.halfPlane, cube.pSize+cube.gap*2);
+  const xyFocus = new THREE.Vector3(cube.halfPlane, cube.halfPlane, cube.pSize+cube.gap*2);
+  setCameraPos(xyFocus);
   setCameraTarget(center);
-  refreshConCam();
 });
 // ZY Red plane camera button
 document.getElementById('zyCamera-btn').addEventListener('click', () => {
-  setCameraPos(-cube.pSize-cube.gap, cube.halfPlane, -cube.halfPlane);
+  const zyFocus = new THREE.Vector3(-cube.pSize-cube.gap*2, cube.halfPlane, -cube.halfPlane);
+  setCameraPos(zyFocus);
   setCameraTarget(center);
-  refreshConCam();
 });
 // XZ Blue plane camera button
 document.getElementById('xzCamera-btn').addEventListener('click', () => {
-  setCameraPos(cube.halfPlane, -cube.pSize - cube.gap, -cube.halfPlane);
+  const xzFocus = new THREE.Vector3(cube.halfPlane, -cube.pSize - cube.gap*2, -cube.halfPlane);
+  setCameraPos(xzFocus);
   setCameraTarget(center);
-  refreshConCam();
 });
 // AB Pink plane camera button
 document.getElementById('abCamera-btn').addEventListener('click', () => {
-  setCameraPos(cube.halfPlane, cube.halfPlane, -cube.pSize-cube.gap*2);
+  const abFocus = new THREE.Vector3(cube.halfPlane, cube.halfPlane, -cube.pSize-cube.gap*2);
+  setCameraPos(abFocus);
   setCameraTarget(center);
-  refreshConCam();
 });
 // CB Green plane camera button
 document.getElementById('cbCamera-btn').addEventListener('click', () => {
-  setCameraPos(cube.pSize+cube.gap*3, cube.halfPlane, -cube.halfPlane);
+  const cbFocus = new THREE.Vector3(cube.pSize+cube.gap*2, cube.halfPlane, -cube.halfPlane);
+  setCameraPos(cbFocus);
   setCameraTarget(center);
-  refreshConCam();
 });
 // AB Orange plane camera button
 document.getElementById('acCamera-btn').addEventListener('click', () => {
-  setCameraPos(cube.halfPlane, cube.pSize+cube.gap*2, -cube.halfPlane);
+  const acFocus = new THREE.Vector3(cube.halfPlane, cube.pSize+cube.gap*2, -cube.halfPlane);
+  setCameraPos(acFocus);
   setCameraTarget(center);
-  refreshConCam();
 });
 // Return to orbit
 document.getElementById('orbit-btn').addEventListener('click', () => {
-  setCameraTarget(center);
-  refreshConCam();
+  resetCamera();
 });

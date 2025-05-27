@@ -25,6 +25,10 @@ const acColour = 0xFF7518;  // Orange
 
 const planeOpacity = 0.6;
 
+// for cube
+// Array to hold all mesh children for raycasting
+let planes = [];
+
 const xyMaterial = new THREE.MeshBasicMaterial({ color: xyColour, side: THREE.DoubleSide, transparent: true, opacity: planeOpacity,   polygonOffset: true,
   polygonOffsetFactor: 1,
   polygonOffsetUnits: 1, depthWrite: true,
@@ -67,7 +71,7 @@ const acMaterial = new THREE.MeshBasicMaterial({ color: acColour, side: THREE.Do
 //   const geometry = new THREE.BufferGeometry();
 //   geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
 //   const material = new THREE.LineBasicMaterial({ color, transparent: true, opacity: 0.5});
-//   return new THREE.LineSegments(geometry, material);
+//   return new THREE.LineSegments(gemeshChildrenometry, material);
 // }
 
 function createGridLines(size, divisions) {
@@ -195,6 +199,9 @@ const cLabel = createAxisLabel('C', 0x000000, new THREE.Vector3(pSize+gap, pSize
 
 cube.add(xLabel, yLabel, zLabel, aLabel, bLabel, cLabel);
 
+// cube planes for raycasting
+planes = [ xyPlane, zyPlane, xzPlane, abPlane, cbPlane, acPlane];
+
 // Set the labels to be in front of the planes
 xLabel.renderOrder = 1;
 yLabel.renderOrder = 1;
@@ -219,6 +226,7 @@ cube.zLabel = zLabel;
 cube.aLabel = aLabel;
 cube.bLabel = bLabel;
 cube.cLabel = cLabel;
+cube.planes = planes;
 
 export {
   cube as default, pSize, gap, halfPlane, xyGroup, xzGroup, zyGroup, abGroup, cbGroup, acGroup,
@@ -249,7 +257,7 @@ export function scaleGrids() {
 
 }
 
-    // --- Axis label scaling (optional, for consistent size) ---
+// --- Axis label scaling (optional, for consistent size) ---
 export function scaleLabels(camera) {
   const labelScale = labelSize / camera.zoom;
   cube.xLabel.scale.set(labelScale, labelScale, labelScale);
