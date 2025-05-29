@@ -6,7 +6,7 @@ let halfPlane = pSize/2;
 let griddivs = 20;
 
 const planeGeometry = new THREE.PlaneGeometry(pSize, pSize);
-
+ 
 let gapScale = 0.7;
 // cube gap
 let gap = pSize * gapScale;
@@ -253,6 +253,9 @@ export function toggleGrids(scene) {
   }
 }
 
+// Adaptive grid spacing (purely visual)
+// Independent of zoom level, camera, or grid.
+// All measurements, drawings, and constraints obey the same consistent unit system.
 export function scaleGrids() {
 
 }

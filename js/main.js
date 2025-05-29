@@ -7,9 +7,11 @@ import scene from './scene.js';
 import createControls from './controls.js';
 import cube from './cube.js';
 import { toggleGrids, scaleGrids, scaleLabels } from './cube.js';
-import line from '/js/tools/line.js';
+//import line from '/js/tools/line.js';
 import ray from './ray.js';
-import { hitObject, frontOfPlane } from './rayHit.js';
+import raycast from './raycast.js';
+import { castRay } from './raycast.js';
+//import objects from './sceneLogic.js';
 
 // Always need 3 objects
 // Scene, camera, renderer
@@ -37,10 +39,13 @@ camera.far = cameraFar;
 
 let lineTool = false;
 
-// Check if drawing
-let isDrawing = false;
-
 let spaceDown = false;
+
+const lines = [];
+
+let clicks, isDrawing = false;
+
+let localLine, localStart, localEnd;
 
 // origin axeshelper
 const origin = new THREE.AxesHelper(300);
@@ -67,6 +72,7 @@ function init () {
   renderer = new THREE.WebGLRenderer({ canvas: document.querySelector('#background') });
   renderer.setPixelRatio(window.devicePixelRatio);
   renderer.setSize(window.innerWidth, window.innerHeight);
+  
 
   // Orbit controls
   controls = createControls(camera, renderer);
@@ -83,6 +89,7 @@ function init () {
   camera.zoom = cameraZoom;
   refreshConCam();
 
+  // Dynamic resize
   addResizeListener(camera, frustrumSize, renderer);
 
   // Add GUI controls
@@ -96,13 +103,8 @@ function init () {
   scene.add(cube);
 }
 
-function animate() {
-  // console.log(camera.up);
-  render();
-}
-
-function render () {
-    // tells browser to perform animation
+function animate () {
+  // tells browser to perform animation
   requestAnimationFrame(animate);
 
   camera.updateMatrixWorld();
@@ -111,7 +113,7 @@ function render () {
 
   scaleLabels(camera);
 
-  hitObject();
+  castRay();
 
   //drawing(isDrawing);
   //console.log(ray.pointer.x, ray.pointer.y);
@@ -119,6 +121,11 @@ function render () {
   controls.update();
   renderer.render(scene, camera);
 }
+
+//console.log(objects);
+
+const gui1 = new GUI();
+gui1.add(camera, 'zoom', 1, 30, 1).listen();
 
 // OrbitControls can derive rotation or lookat by position and target.
 
@@ -157,42 +164,85 @@ function unlockRotation() {
   refreshConCam();
 }
 
-function drawLine() {
-  // Create a new line
-  const geometry = new THREE.BufferGeometry();
-  const material = new THREE.LineBasicMaterial({ color: 0x000000, linewidth: 2 });
+// Create a new line
+//const lineGeometry = new THREE.BufferGeometry();
+//const lineMaterial = new THREE.LineBasicMaterial({ color: 0x000000, linewidth: 2 });
 
-  // Set the line's geometry
-  const start = new THREE.Vector3(2, 2, -cube.gap);
+function drawing() {
+  if (lineTool === true && raycast.plane && raycast.point) {
+    console.log("drawing!");
 
-  const end = new THREE.Vector3( 8, 8, -cube.gap);
+    if (clicks === 0) {
+      clicks++;
+      isDrawing = true;
 
-  geometry.setFromPoints([start, end]);
+      // Set last plane
+      raycast.lastPlane = raycast.plane;
 
-  const line = new THREE.Line(geometry, material);
+      // thisPlane();
 
-  // Add the line to the scene
-  scene.add(line);
-}
+      localStart = raycast.plane.worldToLocal(raycast.point.clone());
 
-drawLine();
+      const geometry = new THREE.BufferGeometry().setFromPoints([
+        localStart,
+        localStart.clone(), // dummy second point
+      ]);
 
-function drawing(start) {
+      const material = new THREE.LineBasicMaterial({ color: 0x000000 });
+      localLine = new THREE.Line(geometry, material);
+      
+      //console.log("line start x: " + localLine.geometry.attributes.position.array[2]);
+      
+      scene.add(localLine);
 
-  while (isDrawing === true) {
-    //raycaster
-    const points = [];  // Array to store THREE.Vector3 points
+    } else if (clicks === 1) {
+      // Finalize line
+      localEnd = raycast.plane.worldToLocal(raycast.point.clone());
 
-    scene.add(line);
+      //console.log(raycast.point);
+
+      // Keep the line in scene or store it if needed
+      resetDrawing();
+    }
+  } else {
+    resetDrawing();
   }
+}
+
+function resetDrawing() {
+  isDrawing = false;
+  clicks = 0;
+  localStart = null;
+  localEnd = null;
+  raycast.lastPlane = null;
+  localLine = null;
+}
+
+function newLine() {
 
 }
+
+function onMouseMove(event) {
+  if (!isDrawing || !raycast.plane) {
+    resetDrawing();
+    return;
+  }
+  if (raycast.lastPlane !== raycast.plane) {
+    console.warn("Not on the same plane anymore.");
+    resetDrawing();
+    return;
+  }
+  localLine.geometry.setFromPoints([localStart, raycast.localPoint]);
+  localLine.geometry.attributes.position.needsUpdate = true;
+}
+
+window.addEventListener('mousemove', onMouseMove);
 
 // && which tool
 window.addEventListener('mousedown', (e) => {
   // 0 is left button
   if (e.button === 0) {
-
+    drawing();
   } else if (e.button === 2) { 
     // Right click
   }
@@ -200,7 +250,9 @@ window.addEventListener('mousedown', (e) => {
 
 window.addEventListener('mouseup', (e) => {
   // 0 is left button
-  if (e.button === 0) isDrawing = false;
+  if (e.button === 0) {
+
+  }
 });
 
 window.addEventListener('keydown', (e) => {
@@ -218,15 +270,13 @@ window.addEventListener('keyup', (e) => {
   }
 });
 
-// line tool button
 document.getElementById('line-btn').addEventListener('click', () => {
-  // Switch tool to line
-  if(lineTool === false) {
-    lineTool = true;
+  if (lineTool === false) {  
     console.log('Line tool enabled');
+    lineTool = true;
   } else {
-    lineTool = false;
     console.log('Line tool disabled');
+    lineTool = false;
   }
 });
 

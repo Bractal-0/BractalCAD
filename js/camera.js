@@ -15,5 +15,6 @@ const camera = new THREE.OrthographicCamera(
 );
 
 camera.frustumSize = frustrumSize;
+camera.updateProjectionMatrix();
 
 export {camera as default, frustrumSize};

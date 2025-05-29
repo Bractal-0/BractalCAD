@@ -134,6 +134,14 @@ html, body {
   border: none;
   gap: 10px;
 }
+#line-btn {
+  cursor: pointer;
+}
+#line-btn:active {
+  padding: 5px;
+  border: 1px dashed black;
+  scale: 80%;
+}
 #about {
   position: fixed;
   display: flex;
