@@ -43,9 +43,18 @@ let spaceDown = false;
 
 const lines = [];
 
+let activePlane = null;
+
 let clicks, isDrawing = false;
 
-let localLine, localStart, localEnd;
+let localStart, localEnd;
+
+
+let lineGeometry;
+// Line material
+const lineMaterial = new THREE.LineBasicMaterial({ color: 0x000000 });
+
+let tempLine;
 
 // origin axeshelper
 const origin = new THREE.AxesHelper(300);
@@ -127,6 +136,24 @@ function animate () {
 const gui1 = new GUI();
 gui1.add(camera, 'zoom', 1, 30, 1).listen();
 
+const lineManager = {
+  lines: [],
+
+  addLine(line, parent) {
+    parent.add(line);
+    this.lines.push({ line, parent });
+  },
+
+  clearLines() {
+    this.lines.forEach(({ line, parent }) => {
+      parent.remove(line);
+      line.geometry.dispose();
+      line.material.dispose();
+    });
+    this.lines = [];
+  }
+};
+
 // OrbitControls can derive rotation or lookat by position and target.
 
 function setCameraPos(vector) {
@@ -169,35 +196,40 @@ function unlockRotation() {
 //const lineMaterial = new THREE.LineBasicMaterial({ color: 0x000000, linewidth: 2 });
 
 function drawing() {
-  if (lineTool === true && raycast.plane && raycast.point) {
+  if (lineTool && raycast.plane) {
     console.log("drawing!");
 
     if (clicks === 0) {
       clicks++;
       isDrawing = true;
 
-      // Set last plane
-      raycast.lastPlane = raycast.plane;
+      // active drawing plane
+      activePlane = raycast.plane;
 
-      // thisPlane();
+      localStart = activePlane.worldToLocal(raycast.point.clone());
 
-      localStart = raycast.plane.worldToLocal(raycast.point.clone());
-
-      const geometry = new THREE.BufferGeometry().setFromPoints([
+      lineGeometry = new THREE.BufferGeometry().setFromPoints([
         localStart,
         localStart.clone(), // dummy second point
       ]);
 
-      const material = new THREE.LineBasicMaterial({ color: 0x000000 });
-      localLine = new THREE.Line(geometry, material);
+      tempLine = new THREE.Line(lineGeometry, lineMaterial);
       
-      //console.log("line start x: " + localLine.geometry.attributes.position.array[2]);
+      //console.log("temptempLine start x: " + line.geometry.attributes.position.array[2]);
       
-      scene.add(localLine);
+      activePlane.add(tempLine);
+      //console.log(raycast.plane.children.includes(line)); // should be true
 
     } else if (clicks === 1) {
-      // Finalize line
-      localEnd = raycast.plane.worldToLocal(raycast.point.clone());
+      if (!raycast.plane) { resetDrawing(); return;}
+      if (activePlane === raycast.plane) {
+        // Finalize line
+        localEnd = activePlane.worldToLocal(raycast.point.clone());
+
+        const line = new THREE.Line(lineGeometry, lineMaterial);
+        
+        lineManager.addLine(line, activePlane);
+      }
 
       //console.log(raycast.point);
 
@@ -212,10 +244,10 @@ function drawing() {
 function resetDrawing() {
   isDrawing = false;
   clicks = 0;
-  localStart = null;
-  localEnd = null;
-  raycast.lastPlane = null;
-  localLine = null;
+  if (tempLine && activePlane) {
+    activePlane.remove(tempLine);
+    tempLine.geometry.dispose();
+  }
 }
 
 function newLine() {
@@ -223,17 +255,12 @@ function newLine() {
 }
 
 function onMouseMove(event) {
-  if (!isDrawing || !raycast.plane) {
+  if (!lineTool || !isDrawing || !raycast.plane || !activePlane || activePlane !== raycast.plane) {
     resetDrawing();
     return;
   }
-  if (raycast.lastPlane !== raycast.plane) {
-    console.warn("Not on the same plane anymore.");
-    resetDrawing();
-    return;
-  }
-  localLine.geometry.setFromPoints([localStart, raycast.localPoint]);
-  localLine.geometry.attributes.position.needsUpdate = true;
+    tempLine.geometry.setFromPoints([localStart, raycast.localPoint]);
+    tempLine.geometry.attributes.position.needsUpdate = true;
 }
 
 window.addEventListener('mousemove', onMouseMove);
@@ -347,6 +374,6 @@ document.getElementById('acCamera-btn').addEventListener('click', () => {
   setCameraTarget(center);
 });
 // Return to orbit
-document.getElementById('orbit-btn').addEventListener('click', () => {
+document.getElementById('center-btn').addEventListener('click', () => {
   resetCamera();
 });

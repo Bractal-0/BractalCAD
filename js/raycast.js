@@ -12,11 +12,10 @@ const pointer = new THREE.Vector2();
 let raycast = {
   hit: false,
   point: null,
+  // On plane, not any object!
   localPoint: null,
   object: null,
-  plane: null,
-  lastPlane: null,
-  samePlane: false
+  plane: null
 };
 
 let intersection;
@@ -47,7 +46,11 @@ export function castRay() {
 
     //console.log("raycast x: " + raycast.point.z);
 
-    isPlane();
+    if (isPlane()) {
+      raycast.plane = raycast.object;
+      // Convert world point ON PLANE to local point
+      raycast.localPoint = raycast.plane.worldToLocal(raycast.point.clone());
+    }
 
     // if (plane) {
     //   console.log(plane.name);
@@ -61,29 +64,14 @@ export function castRay() {
     raycast.point = null;
     raycast.object = null;
     raycast.plane = null;
-    raycast.lastPlane = null;
-    raycast.samePlane = false;
   }
 }
 
 function isPlane() {
   // Checks if plane geometry
   if (raycast.object.geometry instanceof THREE.PlaneGeometry) {
-    raycast.plane = raycast.object;
-    // Convert world point to local point
-    raycast.localPoint = raycast.plane.worldToLocal(raycast.point.clone());
-  }
-}
-
-// Needs to be called on click
-export function isSamePlane(plane) {
-  if (raycast.lastPlane === raycast.plane) {
-    raycast.samePlane = true;
     return true;
-  } else {
-    raycast.samePlane = false;
-    return false;
-  }
+  } else {return false;}
 }
 
 // Returns true if hit object is a plane 
