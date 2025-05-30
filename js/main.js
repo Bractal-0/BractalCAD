@@ -42,8 +42,6 @@ camera.far = cameraFar;
 // Cube settings
 // input number button for cube gap with max and min.
 
-let spaceDown = false;
-
 // origin axeshelper
 const origin = new THREE.AxesHelper(300);
 origin.position.set(0,0,0);

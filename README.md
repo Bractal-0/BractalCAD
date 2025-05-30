@@ -1,6 +1,4 @@
-Project aim:
-
-Bractal's CAD aims to use 2D planes to simplify the 3D design process.
+Bractal's CAD aims to solely use orthographic projection to simplify the 3D design process.
 
 This project intends to be a working prototype of an idea I had for a Computer-Aided Design technique to design 3D objects solely through 2D design and orthographic projection.
 
@@ -10,10 +8,12 @@ The object(s) inside, can be grouped to make a larger object, like with layers o
 
 When we have an idea for a design, the first thing we do is try to draw it. Usually using orthographic projection with the side and front views. Everything, from technical drawings, blueprints, floor plans of buildings, to small detailed parts use orthographic projection. However, when we move to 3D design, a lot of that detail from measurements and drawing annotations is lost, or must be chased down again with a digital tape measure.
 
+A particular target for the scope of this project will be to simplify rapid prototyping for 3D printing.
+
 Short-term Project Goals:
 
   - Line tool (mapping 2D input to local plane) [DONE]
-  - Square tool
+  - Rectangle tool [DONE]
   - Move tool
   - Boolean operation (intersect to define the 3D object)
   - measurements, take size inputs when drawing.
