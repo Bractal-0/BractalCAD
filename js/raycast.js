@@ -74,18 +74,6 @@ function isPlane() {
   } else {return false;}
 }
 
-// Returns true if hit object is a plane 
-function whichPlane(object) {
-  for (let i = 0; i < cube.planes.length; i++) {
-    if (object === cube.planes[i]) {
-      //console.log("IT'S A PLANE");
-      raycast.plane = object;
-      updateActivePlane(raycast.plane);
-    } else {
-    }
- }
-}
-
 // Checks if front of plane. Might use.
 function frontOfPlane(object) {
   // Dot product between face normal and ray direction

@@ -181,7 +181,7 @@ function createAxisLabel(text, color, position) {
   ctx.fillText(text, 64, 64);
 
   const texture = new THREE.CanvasTexture(canvas);
-  const material = new THREE.SpriteMaterial({ map: texture, transparent: true, opacity: 0.4 });
+  const material = new THREE.SpriteMaterial({ map: texture, transparent: true, opacity: 0.4});
   const sprite = new THREE.Sprite(material);
   sprite.scale.set(labelSize, labelSize, 1); // Adjust size as needed
   sprite.position.copy(position);
