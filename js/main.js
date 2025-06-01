@@ -1,28 +1,34 @@
 import * as THREE from 'three';
+
+// Shared pieces
+import createRenderer from './renderer.js';
+import scene from './scene.js';
+import camera from './camera.js';
+import createControls from './controls.js';
+import cube, { initGrid, scaleGuides, updateGridUniforms} from './cube.js';
+import raycast, { castRay } from './raycast.js';
+
 import { GUI } from 'three/examples/jsm/libs/lil-gui.module.min.js';
 import { runStartupAnimation } from './startupAnimation.js';
-import camera from './camera.js';
-import { addResizeListener} from './resize.js';
-import scene from './scene.js';
-import createControls from './controls.js';
-import cube from './cube.js';
-import { scaleGrids, scaleLabels } from './cube.js';
-import raycast from './raycast.js';
-import { castRay } from './raycast.js';
 
+// Utility
+import { addResizeListener} from './resize.js';
 import { initMouseListeners } from './mouseListeners.js';
 import { initKeyboardListeners } from './keyboardListeners.js';
 import { initUIButtons } from './uiButtons.js';
 
+// Shaders for grid
+import vertexShader from '../shaders/grid.vert.glsl';
+import fragmentShader from '../shaders/grid.frag.glsl';
+
+// Tools
 import ToolManager from './tools/ToolManager.js';
 import LineTool from './tools/LineTool.js';
 import RectangleTool from './tools/RectangleTool.js';
 
-// Always need 3 objects
-// Scene, camera, renderer
+import { app } from './app.js';
 
 let renderer, controls;
-
 let center, defaultOrbit;
 
 // White background
@@ -32,7 +38,7 @@ let background = new THREE.Color(0xffffff);
 let zoomScale = 13 / cube.pSize;
 let cameraZoom = zoomScale;
 let frustrumSize = 50;
-const cameraNear = 0.1;
+const cameraNear = 0.01;
 let cameraFar = cube.pSize*4 + cube.gap*4 + 500;
 
 camera.zoom = cameraZoom;
@@ -43,9 +49,14 @@ camera.far = cameraFar;
 // input number button for cube gap with max and min.
 
 // origin axeshelper
-const origin = new THREE.AxesHelper(300);
+const origin = new THREE.AxesHelper(cube.pSize);
 origin.position.set(0,0,0);
 scene.add(origin);
+
+// const inverse = new THREE.AxesHelper(cube.pSize);
+// inverse.position.set(cube.pSize, 0, cube.pSize);
+// inverse.rotateOnAxis(new THREE.Vector3(0, 1, 0), Math.PI);
+// scene.add(inverse);
 
 // Run startup animation, then start main app
 //runStartupAnimation(renderer, main);
@@ -63,11 +74,8 @@ function init () {
   // const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
   // directionalLight.position.set(1, 1, 1).normalize();
   // scene.add(directionalLight);
-
-  renderer = new THREE.WebGLRenderer({ canvas: document.querySelector('#background') });
-  renderer.setPixelRatio(window.devicePixelRatio);
-  renderer.setSize(window.innerWidth, window.innerHeight);
   
+  renderer = createRenderer();
 
   // Orbit controls
   controls = createControls(camera, renderer);
@@ -79,42 +87,47 @@ function init () {
   center = new THREE.Vector3(cube.halfPlane, cube.halfPlane, -cube.halfPlane);
   defaultOrbit = new THREE.Vector3(-cube.pSize-cube.gap, cube.pSize*2+cube.gap, cube.pSize+cube.gap);
 
+  // Position camera and zoom
   setCameraPos(defaultOrbit);
   setCameraTarget(center);
   camera.zoom = cameraZoom;
   refreshConCam();
 
-  // Dynamic resize
+  // Dynamic resizing of window
   addResizeListener(camera, frustrumSize, renderer);
 
-  // Add GUI controls
-  // const gui = new GUI();
-  // gui.add(DOM, 'gap', 0.01, 10).name('interface').onChange(() => {
-  //   scaleGrids(cube);
-  //   scaleLabels(camera);
-  // });
+  // cube grids
+  initGrid({ renderer, camera });
 
   // Add the CAD cube to scene
   scene.add(cube);
+
+  // Inject into appContext
+  app.renderer = renderer;
+  app.scene = scene;
+  app.camera = camera;
+  app.controls = controls;
+  app.raycast = raycast;
 }
 
 function animate () {
-  // tells browser to perform animation
-  requestAnimationFrame(animate);
-
-  camera.updateMatrixWorld();
-
   // console.log('Camera position:', camera.position);
 
-  scaleLabels(camera);
+  // Update label and grid scale
+  scaleGuides();
+  updateGridUniforms();
 
   castRay();
 
   //drawing(isDrawing);
   //console.log(ray.pointer.x, ray.pointer.y);
 
+  camera.updateMatrixWorld();
   controls.update();
   renderer.render(scene, camera);
+
+    // tells browser to perform animation
+  requestAnimationFrame(animate);
 }
 
 // const gui1 = new GUI();

@@ -1,13 +1,14 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { app } from './app.js';
 
 export default function createControls(camera, renderer) {
   const controls = new OrbitControls(camera, renderer.domElement);
-  
+
   controls.enableRotate = true;
   controls.enablePan = true;
   controls.enableZoom = true;
-  
+
   // Settings
   controls.zoomSpeed = 1;
   controls.rotateSpeed = 0.5;
@@ -27,10 +28,3 @@ export default function createControls(camera, renderer) {
 
   return controls;
 }
-  // Optionally, restrict zoom distance for orthographic camera
-  //controls.minZoom = 0.5;
-  //controls.maxZoom = 5;
-
-  // For orthographic camera: scale grid inversely to camera zoom
-  // const scale = 0.5 / camera.zoom;
-  // cubeGroup.scale.set(scale, scale, scale);

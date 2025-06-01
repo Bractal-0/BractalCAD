@@ -15,4 +15,10 @@ const lineBtn = document.getElementById('line-btn');
 //   }
 // });
 
+// Add GUI controls
+// const gui = new GUI();
+// gui.add(DOM, 'gap', 0.01, 10).name('interface').onChange(() => {
+//  adjustCubeGap();
+// });
+
 

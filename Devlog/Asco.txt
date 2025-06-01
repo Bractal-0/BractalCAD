@@ -7,3 +7,59 @@ Boolean operation intersect
 2	Mapping 2D shape input to face-local space
 3	Extrusion in 3D along a vector (normal of face)
 4	Boolean intersection using CSG operations
+
+Areas to Reflect or Refactor
+A. Renderer Scope Issue
+
+You're using renderer.domElement.height inside a module that seems to exist before renderer is defined.
+
+Fix Conceptually:
+Pass renderer and camera to grid-related modules at init, or store them in a central config.
+
+
+
+adaptive spacing based on camera distance or grid fading for CAD-like UX
+
+
+
+B. Coupling Between Modules
+
+You're mixing app logic (scene, camera, controls, raycast) and visuals (cube, grids) into the same files.
+
+Refactor Conceptually:
+Use a CubeBuilder class that returns a ready-to-use group + uniform update functions.
+C. Duplicated Shader Usage
+
+Your gridMaterial is applied to plane.material and used separately for points.
+
+Organize Conceptually:
+Split into two shaders:
+
+    gridPlaneMaterial – fragment grid
+
+    pointGridMaterial – procedural point field
+
+D. Label Visibility Control
+
+Your axis labels are always visible, which could clutter when zoomed in or seen edge-on.
+
+Add Logic:
+Fade or hide based on camera angle or distance using onBeforeRender or in animate().
+✅ Questions to Challenge Yourself
+
+    How would you layer the grid above geometry without Z-fighting?
+
+        (Hint: polygonOffset, render order, depthWrite)
+
+    Can you make the grid spacing logarithmic?
+
+        (Hint: implement in getRoundedSpacing() using log steps like 1, 2, 5, 10, 20, 50)
+
+    What’s the cost trade-off between Points, Lines, and fragment shader rendering?
+
+        (Hint: Think vertex count, draw calls, and fragment overdraw)
+
+Would you like to go deeper into any one of these concepts?
+Shader grid math,
+clean modular structure,
+label visibility.

@@ -10,7 +10,7 @@ When we have an idea for a design, the first thing we do is try to draw it. Usua
 
 A particular target for the scope of this project will be to simplify rapid prototyping for 3D printing.
 
-Short-term Project Goals:
+Project Goals:
 
   - Line tool (mapping 2D input to local plane) [DONE]
   - Rectangle tool [DONE]
@@ -24,10 +24,7 @@ Short-term Project Goals:
 
 Advanced features:
 
-  - Layering / grouping
   - Boolean operations (difference, join, split)
   - Dashed lines for hidden detail
   - Mirror tool
   - Repeat pattern tool
-  - Extrude tool
-  - Import STL

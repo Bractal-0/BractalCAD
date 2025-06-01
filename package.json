@@ -23,7 +23,9 @@
   "homepage": "https://github.com/Bractal-0/BractalCAD#readme",
   "devDependencies": {
     "ftp-deploy": "^2.4.7",
-    "vite": "^6.3.5"
+    "vite": "^6.3.5",
+    "vite-plugin-glsl": "^1.4.1",
+    "vite-plugin-string": "^1.2.3"
   },
   "dependencies": {
     "three": "^0.176.0",

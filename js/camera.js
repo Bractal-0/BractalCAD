@@ -10,7 +10,7 @@ const camera = new THREE.OrthographicCamera(
    aspect * frustrumSize / 2,
    frustrumSize / 2,
   -frustrumSize / 2,
-  0.1,
+  0.01,
   100
 );
 

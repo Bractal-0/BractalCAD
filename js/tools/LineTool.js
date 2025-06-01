@@ -11,7 +11,10 @@ export default class LineTool extends DrawingTool {
       color: 0x000000,
       transparent: true,
       linewidth: 2,
-      opacity: 1
+      opacity: 1,
+      polygonOffset: true,
+      polygonOffsetFactor: -1,  // pull closer to camera
+      polygonOffsetUnits: -1
     });
   }
 
