@@ -15,10 +15,10 @@ export class SuperCube extends THREE.Group {
     this.gap = this.pSize * this.gapScale;
     this.halfPlane = this.pSize/2;
     this.griddivs = 20;
-    this.planeOpacity = 1;
+    this.planeOpacity = 0;
     // Grids
     this.gridMaterial = null;
-    this.gridOpacity = 0.6;
+    this.gridOpacity = 0.1;
     // 20 pixels between grid points on screen
     this.targetPixelSpacing = 20;
     this.pixelsPerWorldUnit;
@@ -29,7 +29,7 @@ export class SuperCube extends THREE.Group {
     this.borderSize = this.pSize + this.borderWidth*2;
     this.halfOuter = this.halfPlane + this.borderWidth;
     this.borderColour = 0xffffff;
-    this.borderOpacity = 0.7;
+    this.borderOpacity = 0.6;
     // Axis labels
     this.labelScale = 0.2; // 0.2 is good
     this.labelSize = 10 * this.labelScale;
@@ -113,6 +113,16 @@ export class SuperCube extends THREE.Group {
       ac: 0xFF7518,  // Orange
     };
 
+        // Colours
+    // this.colours = {
+    //   xy: 0xffffff,  // Yellow
+    //   zy: 0xffffff,  // Red
+    //   xz: 0xffffff,  // Blue
+    //   ab: 0xffffff,  // Pink
+    //   cb: 0xffffff,  // Green
+    //   ac: 0xffffff,  // Orange
+    // };
+
     // Create planes
     this.xyPlane = new THREE.Mesh(this.planeGeometry, this.planeMaterial);
     this.zyPlane = new THREE.Mesh(this.planeGeometry, this.planeMaterial);
@@ -129,22 +139,24 @@ export class SuperCube extends THREE.Group {
     this.cbPlane.name = 'CB : GREEN';
     this.acPlane.name = 'AC : ORANGE';
 
-    // Grid Material
-    this.gridMaterial = new THREE.ShaderMaterial({
-    vertexShader: gridVertexShader,
-    fragmentShader: gridFragmentShader,
-    uniforms: {
+    const uniforms = {
       lineThickness: { value: 0.03 },
       u_color: { value: new THREE.Color(0x000000)},
       u_spacing: { value: 20.0 }, // number of lines per unit
       u_resolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
-      u_zoom: { value: 1.0}
-    },
+      u_zoom: { value: 1.0},
+      opacity: { value: this.gridOpacity }
+    };
+
+    // Grid Material
+    this.gridMaterial = new THREE.ShaderMaterial({
+    vertexShader: gridVertexShader,
+    fragmentShader: gridFragmentShader,
+    uniforms: uniforms,
     side: THREE.DoubleSide,
     transparent: true,
-    opacity: this.gridOpacity,
     depthWrite: false,
-    blending: THREE.NoBlending, // allows the grid to blend over the plane
+    blending: THREE.NormalBlending, // allows the grid to blend over the plane
     });
 
     // Grid shaders

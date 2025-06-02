@@ -4,6 +4,7 @@ uniform vec2 u_resolution;
 uniform vec3 u_color;
 uniform float u_spacing;
 uniform float lineThickness;
+uniform float opacity;
 
 varying vec2 vUv;
 
@@ -14,7 +15,7 @@ void main() {
     float line = min(gridX, gridY);
 
     // lineThickness = fraction of a UV unit (e.g. 0.01)
-    float alpha = 1.0 - smoothstep(0.0, lineThickness, line);
+    float alpha = (1.0 - smoothstep(0.0, lineThickness, line)) * opacity;
 
     if (alpha < 0.01) discard;
 

@@ -118,7 +118,7 @@ function animate () {
   // Update label and grid scale
   app.cube.scaleGuides(camera.zoom);
   
-  // Update grids
+  // Adjust grid spacing based on zoom level
   app.cube.updateGridSpacing(renderer, camera);
 
   // from raycast.js
