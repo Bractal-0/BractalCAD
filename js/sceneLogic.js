@@ -1,10 +1,10 @@
 import cube from './cube.js';
 
-const objects = [];
+const objects = {};
 
-for (let mesh of cube.planes) {
-  objects.push(mesh);
-  //console.log(mesh.name);
-}
+// for (let mesh of Object.cube.planes) {
+//   objects.push(mesh);
+//   //console.log(mesh.name);
+// }
 
 export default objects;

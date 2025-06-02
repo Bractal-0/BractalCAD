@@ -5,13 +5,13 @@ import createRenderer from './renderer.js';
 import scene from './scene.js';
 import camera from './camera.js';
 import createControls from './controls.js';
-import cube, { initGrid, scaleGuides, updateGridUniforms} from './cube.js';
+import cube from './cube.js';
 import raycast, { castRay } from './raycast.js';
 
-import { GUI } from 'three/examples/jsm/libs/lil-gui.module.min.js';
 import { runStartupAnimation } from './startupAnimation.js';
 
 // Utility
+import { setupSettings } from './settings.js';
 import { addResizeListener} from './resize.js';
 import { initMouseListeners } from './mouseListeners.js';
 import { initKeyboardListeners } from './keyboardListeners.js';
@@ -40,10 +40,6 @@ let cameraZoom = zoomScale;
 let frustrumSize = 50;
 const cameraNear = 0.01;
 let cameraFar = cube.pSize*4 + cube.gap*4 + 500;
-
-camera.zoom = cameraZoom;
-camera.near = cameraNear;
-camera.far = cameraFar;
 
 // Cube settings
 // input number button for cube gap with max and min.
@@ -96,9 +92,6 @@ function init () {
   // Dynamic resizing of window
   addResizeListener(camera, frustrumSize, renderer);
 
-  // cube grids
-  initGrid({ renderer, camera });
-
   // Add the CAD cube to scene
   scene.add(cube);
 
@@ -107,31 +100,37 @@ function init () {
   app.scene = scene;
   app.camera = camera;
   app.controls = controls;
+  app.cube = cube;
   app.raycast = raycast;
+
+
+  app.camera.zoom = cameraZoom;
+  app.camera.near = cameraNear;
+  app.camera.far = cameraFar;
+
+  // Ready settings
+  setupSettings();
 }
 
 function animate () {
   // console.log('Camera position:', camera.position);
 
   // Update label and grid scale
-  scaleGuides();
-  updateGridUniforms();
+  app.cube.scaleGuides(camera.zoom);
+  
+  // Update grids
+  app.cube.updateGridSpacing(renderer, camera);
 
+  // from raycast.js
   castRay();
-
-  //drawing(isDrawing);
-  //console.log(ray.pointer.x, ray.pointer.y);
 
   camera.updateMatrixWorld();
   controls.update();
   renderer.render(scene, camera);
 
-    // tells browser to perform animation
+  // tells browser to perform animation
   requestAnimationFrame(animate);
 }
-
-// const gui1 = new GUI();
-// gui1.add(camera, 'zoom', 1, 30, 1).listen();
 
 const lineManager = {
   lines: [],

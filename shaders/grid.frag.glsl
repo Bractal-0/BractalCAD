@@ -19,4 +19,7 @@ void main() {
     if (alpha < 0.01) discard;
 
     gl_FragColor = vec4(u_color, alpha);
+
+    //float spacing = u_targetPixelSpacing / u_pixelsPerWorldUnit;
+    // or inverse zoom
 }

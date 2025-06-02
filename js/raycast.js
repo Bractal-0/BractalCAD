@@ -33,8 +33,8 @@ document.addEventListener('pointermove', onPointerMove, false);
 export function castRay() {
   // find intersections
   ray.setFromCamera(pointer, camera);
-  // all scene children, recursive = true
-  const intersects = ray.intersectObjects(objects, true);
+  // all scene children, recursive = false
+  const intersects = ray.intersectObjects(Object.values(cube.planes), false);
   //console.log('Pointer:', pointer);
   if (intersects.length > 0) {
     raycast.hit = true;
