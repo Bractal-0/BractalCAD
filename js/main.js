@@ -120,6 +120,7 @@ function animate () {
   
   // Adjust grid spacing based on zoom level
   app.cube.updateGridSpacing(renderer, camera);
+  camera.updateProjectionMatrix();
 
   // from raycast.js
   castRay();

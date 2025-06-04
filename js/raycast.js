@@ -1,9 +1,6 @@
 import * as THREE from 'three';
-import scene from './scene.js';
 import ray from './ray.js';
-import camera from './camera.js';
-import cube from './cube.js';
-import objects from './sceneLogic.js';
+import { app } from './app.js';
 
 // 2D screen point
 const pointer = new THREE.Vector2();
@@ -32,9 +29,9 @@ document.addEventListener('pointermove', onPointerMove, false);
 
 export function castRay() {
   // find intersections
-  ray.setFromCamera(pointer, camera);
+  ray.setFromCamera(pointer, app.camera);
   // all scene children, recursive = false
-  const intersects = ray.intersectObjects(Object.values(cube.planes), false);
+  const intersects = ray.intersectObjects(app.cube.planes, false);
   //console.log('Pointer:', pointer);
   if (intersects.length > 0) {
     raycast.hit = true;

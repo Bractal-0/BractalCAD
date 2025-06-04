@@ -3,6 +3,7 @@ import { app } from './app.js';
 
 import gridVertexShader from '../shaders/grid.vert.glsl';
 import gridFragmentShader from '../shaders/grid.frag.glsl';
+import { cloneUniforms } from 'three/src/renderers/shaders/UniformsUtils.js';
 
 // Super Cube
 export class SuperCube extends THREE.Group {
@@ -10,7 +11,7 @@ export class SuperCube extends THREE.Group {
     super();
 
     // Planes
-    this.pSize = 10;
+    this.pSize = 1000;
     this.gapScale = 0;
     this.gap = this.pSize * this.gapScale;
     this.halfPlane = this.pSize/2;
@@ -49,6 +50,9 @@ export class SuperCube extends THREE.Group {
     this.acPlane = null;
 
     // Grids
+    this.orientA = 0;
+    this.orientB = 1;
+    this.orientC = 2;
     this.xyGrid = null;
     this.zyGrid = null;
     this.xzGrid = null;
@@ -113,16 +117,6 @@ export class SuperCube extends THREE.Group {
       ac: 0xFF7518,  // Orange
     };
 
-        // Colours
-    // this.colours = {
-    //   xy: 0xffffff,  // Yellow
-    //   zy: 0xffffff,  // Red
-    //   xz: 0xffffff,  // Blue
-    //   ab: 0xffffff,  // Pink
-    //   cb: 0xffffff,  // Green
-    //   ac: 0xffffff,  // Orange
-    // };
-
     // Create planes
     this.xyPlane = new THREE.Mesh(this.planeGeometry, this.planeMaterial);
     this.zyPlane = new THREE.Mesh(this.planeGeometry, this.planeMaterial);
@@ -139,26 +133,6 @@ export class SuperCube extends THREE.Group {
     this.cbPlane.name = 'CB : GREEN';
     this.acPlane.name = 'AC : ORANGE';
 
-    const uniforms = {
-      lineThickness: { value: 0.03 },
-      u_color: { value: new THREE.Color(0x000000)},
-      u_spacing: { value: 20.0 }, // number of lines per unit
-      u_resolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
-      u_zoom: { value: 1.0},
-      opacity: { value: this.gridOpacity }
-    };
-
-    // Grid Material
-    this.gridMaterial = new THREE.ShaderMaterial({
-    vertexShader: gridVertexShader,
-    fragmentShader: gridFragmentShader,
-    uniforms: uniforms,
-    side: THREE.DoubleSide,
-    transparent: true,
-    depthWrite: false,
-    blending: THREE.NormalBlending, // allows the grid to blend over the plane
-    });
-
     // Grid shaders
     //applyGridShaderToPlanes(this.grids);
 
@@ -166,13 +140,38 @@ export class SuperCube extends THREE.Group {
     //const axis = new THREE.AxesHelper(300);
     //acGroup.add(axis);
 
+    this.baseUniforms = {
+      u_plane: { value: 0 },
+      u_color: { value: new THREE.Color(0x000000) },
+      u_spacing: { value: 1.0 },
+      opacity: { value: 0.6 },
+      u_viewportHeight: { value: 1 },
+      u_cameraHeight: { value: 1 },
+      u_zoom: { value: 1 },
+      u_lineThicknessPixels: { value: 1 }, // desired thickness in pixels for minor lines
+      u_majorLineThicknessPixels: { value: 1 }
+    };
+
+    this.gridMaterial = new THREE.ShaderMaterial({
+      vertexShader: gridVertexShader,
+      fragmentShader: gridFragmentShader,
+      uniforms: cloneUniforms(this.baseUniforms),
+      transparent: true,
+      depthWrite: false,
+      blending: THREE.NormalBlending,
+      side: THREE.DoubleSide,
+      polygonOffset: true,
+      polygonOffsetFactor: -1, // Push it slightly forward
+      polygonOffsetUnits: -1
+    });
+
     // Grids
-    this.xyGrid = this.createGrid();
-    this.zyGrid = this.createGrid();
-    this.xzGrid = this.createGrid();
-    this.abGrid = this.createGrid();
-    this.cbGrid = this.createGrid();
-    this.acGrid = this.createGrid();
+    this.xyGrid = this.createGrid(1);
+    this.zyGrid = this.createGrid(2);
+    this.xzGrid = this.createGrid(0);
+    this.abGrid = this.createGrid(1);
+    this.cbGrid = this.createGrid(2);
+    this.acGrid = this.createGrid(0);
 
     this.outerPoints = [
       new THREE.Vector3(-this.halfOuter, -this.halfOuter, 0),
@@ -223,14 +222,23 @@ export class SuperCube extends THREE.Group {
     this.bLabel = this.createAxisLabel('B', 0x000000, new THREE.Vector3(this.pSize+this.labelOffset, this.halfPlane, this.pSize+this.labelOffset));
     this.cLabel = this.createAxisLabel('C', 0x000000, new THREE.Vector3(this.pSize+this.labelOffset, this.pSize+this.labelOffset, this.halfPlane));
 
-    this.planes = {
-      xy: this.xyPlane,
-      zy: this.zyPlane,
-      xz: this.xzPlane,
-      zb: this.abPlane,
-      cb: this.cbPlane,
-      ac: this.acPlane
-    }
+    this.planes = [
+      this.xyPlane,
+      this.zyPlane,
+      this.xzPlane,
+      this.abPlane,
+      this.cbPlane,
+      this.acPlane
+    ]
+
+    this.grids = [
+      this.xyGrid,
+      this.zyGrid,
+      this.xzGrid,
+      this.abGrid,
+      this.cbGrid,
+      this.acGrid
+    ]
 
     // map for groups
     // cube.groups.xy
@@ -241,18 +249,19 @@ export class SuperCube extends THREE.Group {
       ab: this.abGroup,
       cb: this.cbGroup,
       ac: this.acGroup,
-    }
+  }
 
     this.positionGroups();
   
     // Axis labels
-    this.labels = {
-    x: this.xLabel,
-    y: this.yLabel,
-    z: this.zLabel,
-    a: this.aLabel,
-    b: this.bLabel,
-    c: this.cLabel}
+    this.labels = [
+      this.xLabel,
+      this.yLabel,
+      this.zLabel,
+      this.aLabel,
+      this.bLabel,
+      this.cLabel
+    ]
 
     // Inner box guide
     const boxA = new THREE.BoxGeometry(this.pSize, this.pSize, this.pSize);
@@ -264,7 +273,7 @@ export class SuperCube extends THREE.Group {
 
     // Add each group and label explicitly
     Object.values(this.groups).forEach(group => this.add(group));
-    Object.values(this.labels).forEach(label => this.add(label));
+    this.labels.forEach(label => this.add(label));
     this.add(this.buildBox);
   }
 
@@ -317,11 +326,30 @@ export class SuperCube extends THREE.Group {
     blending: THREE.CustomBlending
     });
   }
+  // Deep clone all uniforms, including nested values
+  cloneUniforms(uniforms) {
+    return THREE.UniformsUtils.clone(uniforms);
+  }
 
   // Create grids
-  createGrid() {
-    // cloned grid material. Sync grid zooming across planes.
-    return new THREE.Mesh(this.planeGeometry, this.gridMaterial.clone());
+  createGrid(planeIndex) {
+    const uniforms = cloneUniforms(this.baseUniforms);
+    uniforms.u_plane.value = planeIndex;
+
+    const material = new THREE.ShaderMaterial({
+      vertexShader: gridVertexShader,
+      fragmentShader: gridFragmentShader,
+      uniforms: uniforms,
+      transparent: true,
+      depthWrite: false,
+      blending: THREE.NormalBlending,
+      side: THREE.DoubleSide,
+      polygonOffset: true,
+      polygonOffsetFactor: -1, // Push it slightly forward
+      polygonOffsetUnits: -1
+    });
+
+    return new THREE.Mesh(this.planeGeometry, material);
   }
 
   createBorderStrip(colour) {
@@ -377,7 +405,7 @@ export class SuperCube extends THREE.Group {
     ctx.fillText(text, 64, 64);
 
     const texture = new THREE.CanvasTexture(canvas);
-    const material = new THREE.SpriteMaterial({ map: texture, transparent: true, opacity: 0.4});
+    const material = new THREE.SpriteMaterial({ map: texture, transparent: true, opacity: 0.4 });
     const sprite = new THREE.Sprite(material);
     sprite.scale.set(this.labelSize, this.labelSize, 1); // Adjust size as needed
     sprite.position.copy(position);
@@ -386,14 +414,34 @@ export class SuperCube extends THREE.Group {
   }
 
   updateGridSpacing(renderer, camera) {
+    // Orthographic camera
     const height = renderer.domElement.height;
-    const worldHeight = camera.top - camera.bottom;
-    const pixelsPerWorldUnit = height / worldHeight;
-
+    const cameraHeight = (camera.top - camera.bottom) / camera.zoom;
+    
+    // compute grid spacing as before
+    const pixelsPerWorldUnit = height / cameraHeight;
     const rawSpacing = 20 / pixelsPerWorldUnit;
-    const spacing = getRoundedSpacing(rawSpacing);
 
-    this.gridMaterial.uniforms.u_spacing.value = spacing;
+    let spacing = getRoundedSpacing(rawSpacing);
+    spacing = Math.max(spacing, 0.5); // minimum spacing
+
+    for (const grid of this.grids) {
+      const mat = grid.material.uniforms;
+
+      mat.u_spacing.value = spacing;
+      mat.u_viewportHeight.value = height;
+      mat.u_cameraHeight.value = camera.top - camera.bottom;  // without zoom
+      mat.u_zoom.value = camera.zoom;
+
+      // line thicknesses
+      mat.u_lineThicknessPixels.value = 0.01;
+      mat.u_majorLineThicknessPixels.value = 0.5;
+    }
+    // Clamp spacing to a minimum to stop zooming-in effect
+    // 0.5 mm if 1 unit = 1 mm.
+    // 0.0005 for 1 unit = 1 meter
+
+    //console.log('spacing: ', spacing);
   }
 
 }
@@ -401,7 +449,7 @@ export class SuperCube extends THREE.Group {
 function getRoundedSpacing(rawSpacing) {
   const steps = [1, 2, 5, 10];
   const base = Math.pow(10, Math.floor(Math.log10(rawSpacing)));
-  for (const step of steps) {
+  for (let step of steps) {
     const spacing = base * step;
     if (spacing >= rawSpacing) return spacing;
   }

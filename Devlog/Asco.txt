@@ -14,18 +14,6 @@ Grid Shader Fragment Logic
 
     Line thickness in screen space
 
-    Anti-aliasing lines
-
-Dynamic Zoom Adaption
-
-    Grid should adapt as the camera zooms in/out
-
 Plane Visibility + Interaction
 
-    Clickable planes?
-
     Toggling individual planes on/off
-
-Plane-specific Grid Density
-
-    Zoom-level based grid snapping (e.g. 1, 10, 100 units)

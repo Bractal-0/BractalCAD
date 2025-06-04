@@ -1,26 +1,47 @@
 precision mediump float;
 
-uniform vec2 u_resolution;
 uniform vec3 u_color;
 uniform float u_spacing;
-uniform float lineThickness;
 uniform float opacity;
 
-varying vec2 vUv;
+uniform float u_viewportHeight;       // canvas pixel height
+uniform float u_cameraHeight;         // camera frustum height in world units (no zoom)
+uniform float u_zoom;                 // camera zoom factor
+uniform float u_lineThicknessPixels; // desired thickness in pixels for minor lines
+uniform float u_majorLineThicknessPixels; // desired thickness in pixels for major lines
+
+
+varying vec2 vGridCoord;
+
+float pixelThicknessToWorld(float pixelThickness) {
+    // world units per pixel at zoom 1, adjusted by zoom
+    return (u_cameraHeight / u_viewportHeight) * pixelThickness / u_zoom;
+}
+
+float gridLine(float coord, float spacing, float thickness) {
+    float line = abs(mod(coord + 0.5 * spacing, spacing) - 0.5 * spacing);
+    float aa = fwidth(coord);
+    return 1.0 - smoothstep(thickness - aa, thickness + aa, line);
+}
 
 void main() {
-    float gridX = abs(fract(vUv.x * u_spacing - 0.5) - 0.5);
-    float gridY = abs(fract(vUv.y * u_spacing - 0.5) - 0.5);
+    float minorThickness = pixelThicknessToWorld(u_lineThicknessPixels);
+    float majorThickness = pixelThicknessToWorld(u_majorLineThicknessPixels);
 
-    float line = min(gridX, gridY);
+    float majorSpacing = u_spacing * 5.0;
 
-    // lineThickness = fraction of a UV unit (e.g. 0.01)
-    float alpha = (1.0 - smoothstep(0.0, lineThickness, line)) * opacity;
+    float minorX = gridLine(vGridCoord.x, u_spacing, minorThickness);
+    float minorY = gridLine(vGridCoord.y, u_spacing, minorThickness);
+ 
+    float majorX = gridLine(vGridCoord.x, majorSpacing, majorThickness);
+    float majorY = gridLine(vGridCoord.y, majorSpacing, majorThickness);
 
-    if (alpha < 0.01) discard;
+    float major = max(majorX, majorY);
+    float minor = max(minorX, minorY);
 
-    gl_FragColor = vec4(u_color, alpha);
+    float gridAlpha = max(major, minor) * opacity;
 
-    //float spacing = u_targetPixelSpacing / u_pixelsPerWorldUnit;
-    // or inverse zoom
+    if (gridAlpha < 0.01) discard;
+
+    gl_FragColor = vec4(u_color, gridAlpha);
 }
