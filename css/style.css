@@ -71,10 +71,10 @@ html, body {
   border: 1px solid black;
 }
 #xyCamera-btn {
-  background: #FFFF00;
+  background: #FF0000;
 }
 #zyCamera-btn {
-  background: #FF0000;
+  background: #FFFF00;
 }
 #xzCamera-btn {
   background: #0000FF;

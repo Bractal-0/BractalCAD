@@ -1,11 +1,11 @@
 import * as THREE from 'three';
 import DrawingTool from './DrawingTool.js';
+import Build from '/js/Build.js';
 
 export default class LineTool extends DrawingTool {
-  constructor(scene, raycast, lineManager) {
+  constructor(scene, raycast, sketches) {
     super(scene, raycast);
-    this.lineManager = lineManager;
-    this.tempLine = null;
+    this.sketches = sketches;
 
     this.lineMaterial = new THREE.LineBasicMaterial({
       color: 0x000000,
@@ -13,49 +13,82 @@ export default class LineTool extends DrawingTool {
       linewidth: 2,
       opacity: 1,
       polygonOffset: true,
-      polygonOffsetFactor: -1,  // pull closer to camera
+      polygonOffsetFactor: -1,
       polygonOffsetUnits: -1
     });
+
+    this.tempLine = null;
+    this.points = [];
+
+    this.activePlane = raycast.plane;
   }
 
   onMouseMove() {
-    if (!this.enabled || !this.isDrawing || !this.activePlane || !this.tempLine) return;
+    if (
+      !this.enabled ||
+      !this.isDrawing ||
+      !this.activePlane ||
+      !this.tempLine ||
+      !this.raycast.point
+    ) return;
 
-    this.tempLine.geometry.setFromPoints([
-      this.localStart,
-      this.raycast.localPoint
-    ]);
-    this.tempLine.geometry.attributes.position.needsUpdate = true;
+    const localPoint = this.activePlane.worldToLocal(this.raycast.point.clone());
+
+    // Update the last point to follow mouse
+    const updatedPoints = [...this.points, localPoint];
+    this.tempLine.geometry.dispose();
+    this.tempLine.geometry = new THREE.BufferGeometry().setFromPoints(updatedPoints);
+
   }
 
   draw() {
     if (!this.enabled || !this.raycast.plane) {
+      // if clicked out of plane to cancel preview,
+      // still finish what lines were drawn.
+      if (this.activePlane) {
+        this.finalise();
+      }
       this.reset();
       return;
     }
 
-    if (this.clicks === 0) {
-      this.clicks++;
-      this.isDrawing = true;
-      this.activePlane = this.raycast.plane;
-      this.localStart = this.activePlane.worldToLocal(this.raycast.point.clone());
+    const clickedPlane = this.raycast.plane;
+    const localPoint = clickedPlane.worldToLocal(this.raycast.point.clone());
 
-      const geometry = new THREE.BufferGeometry().setFromPoints([
-        this.localStart,
-        this.localStart.clone()
-      ]);
+    if (!this.isDrawing) {
+      // Start new polyline
+      this.isDrawing = true;
+      this.activePlane = clickedPlane;
+      this.points = [localPoint];
+
+      const geometry = new THREE.BufferGeometry().setFromPoints([localPoint, localPoint.clone()]);
       this.tempLine = new THREE.Line(geometry, this.lineMaterial);
       this.activePlane.add(this.tempLine);
-    } else if (this.clicks === 1 && this.raycast.plane === this.activePlane) {
-      const finalLine = new THREE.Line(this.tempLine.geometry.clone(), this.lineMaterial);
-      this.lineManager.addLine(finalLine, this.activePlane);
-      this.reset();
+
+    } else if (clickedPlane === this.activePlane) {
+      // Add another segment
+      this.points.push(localPoint);
+
+      const updatedPoints = [...this.points, localPoint.clone()];
+      this.tempLine.geometry.dispose();
+      this.tempLine.geometry = new THREE.BufferGeometry().setFromPoints(updatedPoints);
+
     }
+  }
+
+  // Call this manually to end drawing and store the final line
+  finalise() {
+    if (this.tempLine && this.points.length >= 1) {
+      const finalGeometry = new THREE.BufferGeometry().setFromPoints(this.points);
+      const finalLine = new THREE.Line(finalGeometry, this.lineMaterial.clone());
+      this.sketches.addSketch(finalLine, this.activePlane);
+    }
+    this.reset();
   }
 
   reset() {
     this.isDrawing = false;
-    this.clicks = 0;
+    this.points = [];
 
     if (this.tempLine && this.activePlane) {
       this.activePlane.remove(this.tempLine);

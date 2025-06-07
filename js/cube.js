@@ -29,11 +29,9 @@ export class SuperCube extends THREE.Group {
     this.borderWidth = this.pSize * this.borderScale;
     this.borderSize = this.pSize + this.borderWidth*2;
     this.halfOuter = this.halfPlane + this.borderWidth;
-    this.borderColour = 0xffffff;
     this.borderOpacity = 0.6;
     // Axis labels
-    this.labelScale = 0.2; // 0.2 is good
-    this.labelSize = 10 * this.labelScale;
+    this.labelSize = 0.4;
     this.labelOffset = this.gap + this.borderWidth + (this.pSize*0.1);
     // Inner build box
     this.buildBox = null;
@@ -109,8 +107,8 @@ export class SuperCube extends THREE.Group {
 
     // Colours
     this.colours = {
-      xy: 0xFFFF00,  // Yellow
-      zy: 0xFF0000,  // Red
+      xy: 0xFF0000,  // Red
+      zy: 0xFFFF00,  // Yllow
       xz: 0x0000FF,  // Blue
       ab: 0xFF5CFF,  // Pink
       cb: 0x008000,  // Green
@@ -126,25 +124,18 @@ export class SuperCube extends THREE.Group {
     this.acPlane = new THREE.Mesh(this.planeGeometry, this.planeMaterial);
 
     // Set plane names
-    this.xyPlane.name = 'XY : YELLOW';
-    this.zyPlane.name = 'ZY : RED';
+    this.xyPlane.name = 'XY : RED';
+    this.zyPlane.name = 'ZY : YELLOW';
     this.xzPlane.name = 'XZ : BLUE';
     this.abPlane.name = 'AB : PINK';
     this.cbPlane.name = 'CB : GREEN';
     this.acPlane.name = 'AC : ORANGE';
 
-    // Grid shaders
-    //applyGridShaderToPlanes(this.grids);
-
-    // Check axis of planes
-    //const axis = new THREE.AxesHelper(300);
-    //acGroup.add(axis);
-
     this.baseUniforms = {
       u_plane: { value: 0 },
       u_color: { value: new THREE.Color(0x000000) },
       u_spacing: { value: 1.0 },
-      opacity: { value: 0.6 },
+      opacity: { value: 0.3 },
       u_viewportHeight: { value: 1 },
       u_cameraHeight: { value: 1 },
       u_zoom: { value: 1 },
@@ -263,18 +254,9 @@ export class SuperCube extends THREE.Group {
       this.cLabel
     ]
 
-    // Inner box guide
-    const boxA = new THREE.BoxGeometry(this.pSize, this.pSize, this.pSize);
-    const edges = new THREE.EdgesGeometry(boxA); // extracts edges
-    const lineMaterial = new THREE.LineBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.8 });
-    this.buildBox = new THREE.LineSegments(edges, lineMaterial);
-    this.buildBox.position.set(this.halfPlane, this.halfPlane, this.halfPlane);
-    this.buildBox.renderOrder = 1;
-
     // Add each group and label explicitly
     Object.values(this.groups).forEach(group => this.add(group));
     this.labels.forEach(label => this.add(label));
-    this.add(this.buildBox);
   }
 
   updateGapScale(newGapScale) {
@@ -283,14 +265,13 @@ export class SuperCube extends THREE.Group {
   }
 
   positionGroups() {
-    // recompute group positions based on `this.gap`
     this.groupSet = {
-      xy:    { pos: [this.halfPlane, this.halfPlane, -this.gap-this.borderWidth*1], rot: [0, Math.PI, 0] },
-      zy:    { pos: [-this.gap-this.borderWidth*1, this.halfPlane, this.halfPlane], rot: [0, -Math.PI/2, 0] },
+      xy:    { pos: [this.halfPlane, this.halfPlane, -this.gap-this.borderWidth*1], rot: [0, 0, 0] },
+      zy:    { pos: [-this.gap-this.borderWidth*1, this.halfPlane, this.halfPlane], rot: [0, Math.PI/2, 0] },
       xz:    { pos: [this.halfPlane, -this.gap-this.borderWidth*1, this.halfPlane], rot: [Math.PI/2, 0, 0] },
-      ab:    { pos: [this.halfPlane, this.halfPlane ,this.pSize+this.gap+this.borderWidth*1], rot: [0, Math.PI, 0] },
+      ab:    { pos: [this.halfPlane, this.halfPlane ,this.pSize+this.gap+this.borderWidth*1], rot: [0, 0, 0] },
       cb:    { pos: [this.pSize+this.gap+this.borderWidth*1, this.halfPlane, this.halfPlane], rot: [0, Math.PI/2, 0] },
-      ac:    { pos: [this.halfPlane, this.pSize+this.gap+this.borderWidth*1, this.halfPlane], rot: [-Math.PI/2, 0, 0] },
+      ac:    { pos: [this.halfPlane, this.pSize+this.gap+this.borderWidth*1, this.halfPlane], rot: [Math.PI/2, 0, 0] },
     };
     for (const key in this.groups) {
       const { pos, rot } = this.groupSet[key];
@@ -307,7 +288,7 @@ export class SuperCube extends THREE.Group {
   // Axis label scaling
   scaleLabels(zoom) {
     this.labelScale = this.labelSize / zoom;
-    Object.values(this.labels).forEach(label => {
+    this.labels.forEach(label => {
       label.scale.set(this.labelScale, this.labelScale, this.labelScale);
     });
   }
@@ -326,6 +307,7 @@ export class SuperCube extends THREE.Group {
     blending: THREE.CustomBlending
     });
   }
+
   // Deep clone all uniforms, including nested values
   cloneUniforms(uniforms) {
     return THREE.UniformsUtils.clone(uniforms);
@@ -443,12 +425,13 @@ export class SuperCube extends THREE.Group {
 
     //console.log('spacing: ', spacing);
   }
-
 }
 
+
+
 function getRoundedSpacing(rawSpacing) {
-  const steps = [1, 2, 5, 10];
-  const base = Math.pow(10, Math.floor(Math.log10(rawSpacing)));
+  const steps = [1, 2, 5];
+  const base = Math.pow(50, Math.floor(Math.log10(rawSpacing)));
   for (let step of steps) {
     const spacing = base * step;
     if (spacing >= rawSpacing) return spacing;
@@ -478,11 +461,5 @@ function removeGridsFromGroups(groups, grids) {
   }
 }
 
-// Adaptive grid spacing (purely visual)
-// Independent of zoom level, camera, or grid.
-// All measurements, drawings, and constraints obey the same consistent unit system.
-
-
-// Shraed singleton
 const cube = new SuperCube();
-export default cube
+export default cube;

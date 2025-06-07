@@ -1,6 +1,8 @@
 export default class ToolManager {
   constructor() {
     this.activeTool = null;
+
+    this.spaceDown = false;
   }
 
   setTool(tool) {

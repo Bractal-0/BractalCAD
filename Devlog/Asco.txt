@@ -8,12 +8,6 @@ Boolean operation intersect
 3	Extrusion in 3D along a vector (normal of face)
 4	Boolean intersection using CSG operations
 
-Grid Shader Fragment Logic
-
-    How to map fragCoord to local UVs
-
-    Line thickness in screen space
-
 Plane Visibility + Interaction
 
     Toggling individual planes on/off

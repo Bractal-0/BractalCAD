@@ -3,5 +3,7 @@ export const app = {
   scene: null,
   camera: null,
   controls: null,
-  raycast: null
+  raycast: null,
+  cube: null,
+  build: null
 };

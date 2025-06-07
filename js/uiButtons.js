@@ -1,15 +1,12 @@
-// uiButtons.js
 import * as THREE from 'three';
 import { toggleGrids } from './cube.js';
+import { app } from './app.js';
 
 export function initUIButtons({
   toolManager,
   lineToolInstance,
   rectangleToolInstance,
-  cube,
-  setCameraPos,
-  setCameraTarget,
-  resetCamera
+  cube
 }) {
   const lineBtn = document.getElementById('line-btn');
   const rectBtn = document.getElementById('rectangle-btn');
@@ -47,29 +44,29 @@ export function initUIButtons({
   });
 
   // Camera buttons
-  const half = cube.halfPlane;
-  const size = cube.pSize;
-  const gap = cube.gap;
+  const half = app.cube.halfPlane;
+  const size = app.cube.pSize;
+  const gap = app.cube.gap;
 
   const camButtons = {
-    'xyCamera-btn': new THREE.Vector3(half, half, size + gap * 2),
-    'zyCamera-btn': new THREE.Vector3(-size - gap * 2, half, -half),
-    'xzCamera-btn': new THREE.Vector3(half, -size - gap * 2, -half),
-    'abCamera-btn': new THREE.Vector3(half, half, -size - gap * 2),
-    'cbCamera-btn': new THREE.Vector3(size + gap * 2, half, -half),
-    'acCamera-btn': new THREE.Vector3(half, size + gap * 2, -half)
+    'xyCamera-btn': new THREE.Vector3(half, half, size*2),
+    'zyCamera-btn': new THREE.Vector3(-size*2, half, -half),
+    'xzCamera-btn': new THREE.Vector3(half, -size*2, -half),
+    'abCamera-btn': new THREE.Vector3(half, half, -size*3),
+    'cbCamera-btn': new THREE.Vector3(size*3, half, -half),
+    'acCamera-btn': new THREE.Vector3(half, size*3, -half)
   };
 
   for (const [id, pos] of Object.entries(camButtons)) {
     document.getElementById(id).addEventListener('click', () => {
-      setCameraPos(pos);
-      setCameraTarget(new THREE.Vector3(half, half, -half));
+      app.camera.setPos(pos);
+      app.camera.setTarget(new THREE.Vector3(half, half, -half));
     });
   }
 
   // Reset camera
   document.getElementById('center-btn').addEventListener('click', () => {
-    resetCamera();
+    app.camera.reset();
   });
 }
 
@@ -77,10 +74,10 @@ export function initUIButtons({
 //  Might need to adjust for top and bottom planes
 function lockRotation() {
   controls.enableRotate = false;
-  refreshConCam();
+  app.camera.refresh();
 }
 
 function unlockRotation() {
   controls.enableRotate = true;
-  refreshConCam();
+  app.camera.refresh();
 }

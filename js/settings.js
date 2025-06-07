@@ -9,3 +9,4 @@ export function setupSettings() {
     app.cube.updateGapScale();
   });
 }
+
