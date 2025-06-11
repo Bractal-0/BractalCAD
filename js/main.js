@@ -16,17 +16,15 @@ import { addResizeListener} from './resize.js';
 import { initListeners } from './listeners.js';
 import { initUIButtons } from './uiButtons.js';
 
-// Shaders for grid
-import vertexShader from '../shaders/grid.vert.glsl';
-import fragmentShader from '../shaders/grid.frag.glsl';
-
 // Tools
 import ToolManager from './tools/ToolManager.js';
 import LineTool from './tools/LineTool.js';
 import RectangleTool from './tools/RectangleTool.js';
 
+// application shared state manager
 import { app } from './app.js';
 
+// 2d sketches and 3d objects
 import Build from './Build.js';
 
 let renderer, camera, controls;
@@ -46,17 +44,13 @@ const origin = new THREE.AxesHelper(cube.pSize);
 origin.position.set(0,0,0);
 scene.add(origin);
 
-// const inverse = new THREE.AxesHelper(cube.pSize);
-// inverse.position.set(cube.pSize, 0, cube.pSize);
-// inverse.rotateOnAxis(new THREE.Vector3(0, 1, 0), Math.PI);
-// scene.add(inverse);
-
 // Run startup animation, then start main app
 //runStartupAnimation(renderer, main);
 
 // Where 2D drawings and 3D objects are stored
 let build;
 
+// Tools
 let toolManager, lineToolInstance, rectangleToolInstance;
 
 init();
@@ -65,16 +59,7 @@ animate();
 function init () {
   scene.background = background;
 
-  // // Add lights for 3d object
-  // const ambientLight = new THREE.AmbientLight(0x404040, 1);
-  // scene.add(ambientLight);
-
-  // const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-  // directionalLight.position.set(1, 1, 1).normalize();
-  // scene.add(directionalLight);
-    
   renderer = createRenderer();
-
   // Set camera position and orientation;
   // Center of cube
   center = new THREE.Vector3(cube.halfPlane, cube.halfPlane, -cube.halfPlane);
@@ -89,7 +74,7 @@ function init () {
   // Orbit controls
   controls = createControls(camera, renderer);
   camera.attachControls(controls);
-
+  // set camera
   camera.setPos(defaultOrbit);
   camera.setTarget(center);
   camera.zoom = cameraZoom;
@@ -103,8 +88,8 @@ function init () {
   
   // tools
   toolManager = new ToolManager();
-  lineToolInstance = new LineTool(scene, raycast, build.sketches);
-  rectangleToolInstance = new RectangleTool(scene, raycast);
+  lineToolInstance = new LineTool(scene, raycast, cube, build);
+  rectangleToolInstance = new RectangleTool(scene, raycast, cube, build);
 
   // Inject into appContext
   app.renderer = renderer;
@@ -115,7 +100,7 @@ function init () {
   app.cube = cube;
   app.build = build;
 
-  // Position camera and zoom
+  // update camera
   app.camera.refresh();
 
   // Dynamic resizing of window
@@ -135,9 +120,23 @@ function init () {
   });
 
   // Add the CAD cube to scene
-  scene.add(app.cube);
+  app.scene.add(app.cube);
   // Add the build box
-  scene.add(app.build);
+  app.scene.add(app.build);
+
+  // Add lights for 3d object
+  // Ambient light for base visibility
+  const ambient = new THREE.AmbientLight(0xffffff, 0.5);
+  scene.add(ambient);
+
+  // Directional light like a headlight
+  const light = new THREE.DirectionalLight(0xffffff, 0.8);
+  light.position.set(app.cube.pSize, app.cube.pSize, -app.cube.pSize);
+  scene.add(light);
+
+  // Optional: camera-attached headlight
+  camera.add(new THREE.DirectionalLight(0xffffff, 0.5));
+
 
   // Check axis of planes
   //const axis = new THREE.AxesHelper(10000);
@@ -146,17 +145,14 @@ function init () {
 
 function animate () {
   // Update label and grid scale
-  app.cube.scaleGuides(app.camera.zoom);
-  
-  // Adjust grid spacing based on zoom level
-  app.cube.updateGridSpacing(renderer, camera);
-  camera.updateProjectionMatrix();
+  app.cube.scaleGuides(app.renderer, app.camera);
 
   // from raycast.js
   castRay();
 
-  controls.update();
-  renderer.render(scene, camera);
+  app.controls.update();
+  app.camera.updateProjectionMatrix();
+  app.renderer.render(app.scene, app.camera);
 
   // tells browser to perform animation
   requestAnimationFrame(animate);

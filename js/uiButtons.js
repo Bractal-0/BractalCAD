@@ -51,10 +51,10 @@ export function initUIButtons({
   const camButtons = {
     'xyCamera-btn': new THREE.Vector3(half, half, size*2),
     'zyCamera-btn': new THREE.Vector3(-size*2, half, -half),
-    'xzCamera-btn': new THREE.Vector3(half, -size*2, -half),
+    'xzCamera-btn': new THREE.Vector3(half, -size*2, -half+0.0001),
     'abCamera-btn': new THREE.Vector3(half, half, -size*3),
     'cbCamera-btn': new THREE.Vector3(size*3, half, -half),
-    'acCamera-btn': new THREE.Vector3(half, size*3, -half)
+    'acCamera-btn': new THREE.Vector3(half, size*3, -half+0.0001)
   };
 
   for (const [id, pos] of Object.entries(camButtons)) {
@@ -62,6 +62,7 @@ export function initUIButtons({
       app.camera.setPos(pos);
       app.camera.setTarget(new THREE.Vector3(half, half, -half));
     });
+    app.camera.refresh();
   }
 
   // Reset camera

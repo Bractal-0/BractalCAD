@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 
 import { app } from './app.js';
 
@@ -12,8 +13,8 @@ export class Build extends THREE.Group {
 
     this.buildBox = null;
 
-    this.sketches = {};
-    this.objects = {};
+    this.sketches = { lines: [] };
+    this.objects = { injects: [] };
     this.projections = {};
 
     this.init();
@@ -35,95 +36,166 @@ export class Build extends THREE.Group {
     // Project them to 3D
     // Store 3D objects in array.
     // Maintain order for undo/redo history
-
+  }
     // sketch object storing the plane the line array is on, uuid, and array of line objects
+  addSketch(sketch, plane) {
+    plane.add(sketch);
+    this.sketches.lines.push({ sketch, plane });
+    // To access the sketch objects
+    // const lineId = line.uuid;
+    //console.log(sketch);
+    // printing last line objects plane
+    // console.log(this.lines[this.lines.length-1].plane);
+    
+    // project sketch to 3D and add to scene
+    this.extrude(sketch);
+  }
 
-    this.sketches = {
-      lines: [],
+  clearSketch() {
+    this.lines.forEach(({ sketch, plane }) => {
+      plane.remove(sketch);
+      if (sketch.geometry) sketch.geometry.dispose();
+      if (sketch.material) sketch.material.dispose();
+    });
+    this.lines = [];
+  }
 
-      addSketch: (sketch, plane) => {
-        plane.add(sketch);
-        this.sketches.lines.push({ sketch, plane });
-        // To access the sketch objects
-        // const lineId = line.uuid;
-        // console.log(this.lines.length);
-        // printing last line objects plane
-        // console.log(this.lines[this.lines.length-1].plane);
+  // Tie sketches together and project to all planes.
+  // this.projections = {
+  //   mirrors: [],
 
-        // project sketch to 3D and add to scene
-        //this.objects.extrude(sketch);
-      },
+  //   // Need to map of each plane
+  //   // check which plane the sketch is
+  //   // and project to the rest.
+  //   updatePlanes() {
+  //     for (const sketch of this.sketches) {
+        
+  //     }
+  //   }
+  // }
 
-      clearSketch() {
-        this.lines.forEach(({ sketch, plane }) => {
-          plane.remove(sketch);
-          sketch.geometry.dispose();
-          sketch.material.dispose();
-        });
-        this.lines = [];
-      }
-    };
+  extrude(sketch) {
+    const geometry = sketch.geometry;
+    const posAttr = geometry.attributes.position;
+    const count = posAttr.count;
 
-    this.objects = {
-      // Objects should be childs of the build box
-      list: [],
-
-      extrude(sketch) {
-
-        const start = new THREE.Vector3(
-          sketch[0],
-          sketch[1],
-          sketch[2]
-        );
-
-        const lastIndex = sketch.length - 3;
-
-        const end = new THREE.Vector3(
-          sketch[lastIndex],
-          sketch[lastIndex + 1],
-          sketch[lastIndex + 2]
-        );
-
-        // Extrude direction (e.g. along Y-axis)
-        const extrudeDir = new THREE.Vector3(0, 0, 1).normalize();
-        const distance = 2;
-
-        const geometry = new THREE.BufferGeometry();
-
-        // Compute extruded points
-        //const startExtruded = start.clone().add(extrudeDir.clone().multiplyScalar(distance));
-        //const endExtruded = end.clone().add(extrudeDir.clone().multiplyScalar(distance));
-
-
-        //geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
-        //geometry.computeVertexNormals();
-
-        const material = new THREE.MeshStandardMaterial({ color: 0x000000, opacity: 1});
-
-        // the 3D object
-        const mesh = new THREE.Mesh(geometry, material);
-
-        // Add new object to objects array
-        this.list.push(mesh);
-
-        app.scene.add(mesh);
-      }
-
-    };
-
-    // Tie sketches together and project to all planes.
-    this.projections = {
-      mirrors: [],
-
-      // Need to map of each plane
-      // check which plane the sketch is
-      // and project to the rest.
-      updatePlanes() {
-        for (const sketch of this.sketches) {
-          
-        }
-      }
+    // Extract points from geometry
+    const points = [];
+    for (let i = 0; i < count; i++) {
+      points.push(new THREE.Vector3().fromBufferAttribute(posAttr, i));
     }
+
+    // Check if closed loop (first and last points roughly equal)
+    const isClosed = points[0].distanceTo(points[points.length - 1]) < 1e-5;
+    // Extrusion direction, works for xy and ab planes.
+    const direction = new THREE.Vector3(0, 0, 1);
+    // Default extrusion distance
+    const distance = this.size;
+
+    // Extrude side vertices
+    const offset = direction.clone().multiplyScalar(distance);
+    const extrudedPoints = points.map(p => p.clone().add(offset));
+
+    // Array for vertices
+    const vertices = [];
+    // Arrray for textures
+    // u for horizontal, v for vertical
+    const uvs = [];
+    const lengths = [];
+    let perimeter = 0;
+
+    // Calculate edge lengths for UV mapping
+    for (let i = 0; i < points.length; i++) {
+      const p1 = points[i];
+      const p2 = points[(i + 1) % points.length];
+      const len = p1.distanceTo(p2);
+      lengths.push(len);
+      perimeter += len;
+    }
+
+    let uOffset = 0;
+    for (let i = 0; i < points.length; i++) {
+      const p = points[i];
+      const v = 0;
+      const u = uOffset / perimeter;
+      vertices.push(p.x, p.y, p.z);
+      uvs.push(u, v);
+      uOffset += lengths[i % lengths.length];
+    }
+
+    // Top points
+    uOffset = 0;
+    for (let i = 0; i < extrudedPoints.length; i++) {
+      const p = extrudedPoints[i];
+      const v = 1;
+      const u = uOffset / perimeter;
+      vertices.push(p.x, p.y, p.z);
+      uvs.push(u, v);
+      uOffset += lengths[i % lengths.length];
+    }
+
+    const indices = [];
+    // Create side faces (quads split into two triangles)
+    for (let i = 0; i < points.length - 1; i++) {
+      const a = i;
+      const b = i + 1;
+      const c = b + count;
+      const d = a + count;
+      indices.push(a, b, c);
+      indices.push(c, d, a);
+    }
+
+    // -- Create side geometry --
+    const sideGeometry = new THREE.BufferGeometry();
+    sideGeometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+    sideGeometry.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
+    sideGeometry.setIndex(indices);
+    sideGeometry.computeVertexNormals();
+
+    let finalGeometry = sideGeometry;
+
+    if (isClosed) {
+      // Create caps using shape triangulation
+      const shape = new THREE.Shape(points.map(p => new THREE.Vector2(p.x, p.y)));
+
+      const bottomGeometry = new THREE.ShapeGeometry(shape);
+      const topGeometry = new THREE.ShapeGeometry(shape);
+      topGeometry.translate(0, 0, distance);
+
+      // Add dummy UVs to caps to match sideGeometry
+      const makeDummyUVs = (geometry) => {
+        const count = geometry.attributes.position.count;
+        geometry.setAttribute('uv', new THREE.Float32BufferAttribute(new Float32Array(count * 2), 2));
+      };
+      makeDummyUVs(bottomGeometry);
+      makeDummyUVs(topGeometry);
+
+      // Merge side and caps
+      finalGeometry = BufferGeometryUtils.mergeGeometries(
+        [sideGeometry, bottomGeometry, topGeometry],
+        true
+      );
+    }
+
+    // -- Shared material and mesh creation --
+    const color = isClosed ? 0xCCCCCC : 0xCCCCCC;
+    const material = new THREE.MeshStandardMaterial({
+      color,
+      side: THREE.DoubleSide,
+      flatShading: true,
+    });
+
+    const mesh = new THREE.Mesh(finalGeometry, material);
+    mesh.geometry.computeVertexNormals();
+    
+    const edges = new THREE.EdgesGeometry(finalGeometry);
+    const lineMaterial = new THREE.LineBasicMaterial({ color: 0x000000 });
+    const edgeLines = new THREE.LineSegments(edges, lineMaterial);
+    mesh.add(edgeLines); // add as child to move/scale with mesh
+
+
+    app.scene.add(mesh);
+    this.objects.injects.push(mesh);
   }
 }
 

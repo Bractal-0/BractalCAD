@@ -19,13 +19,14 @@ export class SuperCube extends THREE.Group {
     this.planeOpacity = 0;
     // Grids
     this.gridMaterial = null;
-    this.gridOpacity = 0.1;
+    this.gridOpacity = 0.2;
+    this._gridSpacing = 10;
     // 20 pixels between grid points on screen
     this.targetPixelSpacing = 20;
     this.pixelsPerWorldUnit;
     this.rawSpacing;
     // Borders
-    this.borderScale = 0.1;
+    this.borderScale = 0.02;
     this.borderWidth = this.pSize * this.borderScale;
     this.borderSize = this.pSize + this.borderWidth*2;
     this.halfOuter = this.halfPlane + this.borderWidth;
@@ -38,6 +39,8 @@ export class SuperCube extends THREE.Group {
 
     this.planeGeometry = null;
     this.planeMaterial = null;
+
+    this.isDrawPlane = false;
     
     // Planes
     this.xyPlane = null;
@@ -93,9 +96,11 @@ export class SuperCube extends THREE.Group {
     this.acOutline = null;
 
     // For easy reference
-    this.groups = {};
-    this.planes = {};
-    this.colours = {};
+    this.groups = [];
+    this.planes = [];
+    this.colours = [];
+    this.borders = [];
+    this.labels = [];
 
     this.init();
   }
@@ -103,6 +108,8 @@ export class SuperCube extends THREE.Group {
   init() {
     // Plane elements
     this.planeGeometry = new THREE.PlaneGeometry(this.pSize, this.pSize);
+    this.planeGeometry.translate(this.pSize/2, this.pSize/2, 0);
+
     this.planeMaterial = this.createPlaneMaterial(0xffffff);
 
     // Colours
@@ -123,6 +130,13 @@ export class SuperCube extends THREE.Group {
     this.cbPlane = new THREE.Mesh(this.planeGeometry, this.planeMaterial);
     this.acPlane = new THREE.Mesh(this.planeGeometry, this.planeMaterial);
 
+    this.xyPlane.userData.isDrawPlane = true;
+    this.zyPlane.userData.isDrawPlane = true;
+    this.xzPlane.userData.isDrawPlane = true;
+    this.abPlane.userData.isDrawPlane = true;
+    this.cbPlane.userData.isDrawPlane = true;
+    this.acPlane.userData.isDrawPlane = true;
+
     // Set plane names
     this.xyPlane.name = 'XY : RED';
     this.zyPlane.name = 'ZY : YELLOW';
@@ -135,26 +149,13 @@ export class SuperCube extends THREE.Group {
       u_plane: { value: 0 },
       u_color: { value: new THREE.Color(0x000000) },
       u_spacing: { value: 1.0 },
-      opacity: { value: 0.3 },
+      opacity: { value: this.gridOpacity },
       u_viewportHeight: { value: 1 },
       u_cameraHeight: { value: 1 },
       u_zoom: { value: 1 },
       u_lineThicknessPixels: { value: 1 }, // desired thickness in pixels for minor lines
       u_majorLineThicknessPixels: { value: 1 }
     };
-
-    this.gridMaterial = new THREE.ShaderMaterial({
-      vertexShader: gridVertexShader,
-      fragmentShader: gridFragmentShader,
-      uniforms: cloneUniforms(this.baseUniforms),
-      transparent: true,
-      depthWrite: false,
-      blending: THREE.NormalBlending,
-      side: THREE.DoubleSide,
-      polygonOffset: true,
-      polygonOffsetFactor: -1, // Push it slightly forward
-      polygonOffsetUnits: -1
-    });
 
     // Grids
     this.xyGrid = this.createGrid(1);
@@ -231,6 +232,15 @@ export class SuperCube extends THREE.Group {
       this.acGrid
     ]
 
+    this.borders = [
+      this.xyBorder,
+      this.zyBorder,
+      this.xzBorder,
+      this.abBorder,
+      this.cbBorder,
+      this.acBorder
+    ]
+
     // map for groups
     // cube.groups.xy
     this.groups = {
@@ -264,14 +274,14 @@ export class SuperCube extends THREE.Group {
     this.positionGroups();
   }
 
-  positionGroups() {
+    positionGroups() {
     this.groupSet = {
-      xy:    { pos: [this.halfPlane, this.halfPlane, -this.gap-this.borderWidth*1], rot: [0, 0, 0] },
-      zy:    { pos: [-this.gap-this.borderWidth*1, this.halfPlane, this.halfPlane], rot: [0, Math.PI/2, 0] },
-      xz:    { pos: [this.halfPlane, -this.gap-this.borderWidth*1, this.halfPlane], rot: [Math.PI/2, 0, 0] },
-      ab:    { pos: [this.halfPlane, this.halfPlane ,this.pSize+this.gap+this.borderWidth*1], rot: [0, 0, 0] },
-      cb:    { pos: [this.pSize+this.gap+this.borderWidth*1, this.halfPlane, this.halfPlane], rot: [0, Math.PI/2, 0] },
-      ac:    { pos: [this.halfPlane, this.pSize+this.gap+this.borderWidth*1, this.halfPlane], rot: [Math.PI/2, 0, 0] },
+      xy:    { pos: [0, 0, -this.gap-this.borderWidth*1], rot: [0, 0, 0] },
+      zy:    { pos: [-this.gap-this.borderWidth*1, 0, this.pSize], rot: [0, Math.PI/2, 0] },
+      xz:    { pos: [0, -this.gap-this.borderWidth*1, 0], rot: [Math.PI/2, 0, 0] },
+      ab:    { pos: [0, 0,this.pSize+this.gap+this.borderWidth*1], rot: [0, 0, 0] },
+      cb:    { pos: [this.pSize+this.gap+this.borderWidth*1, 0, this.pSize], rot: [0, Math.PI/2, 0] },
+      ac:    { pos: [0, this.pSize+this.gap+this.borderWidth*1, 0], rot: [Math.PI/2, 0, 0] },
     };
     for (const key in this.groups) {
       const { pos, rot } = this.groupSet[key];
@@ -281,8 +291,26 @@ export class SuperCube extends THREE.Group {
     }
   }
 
-  scaleGuides(zoom) {
-    this.scaleLabels(zoom);
+  // positionGroups() {
+  //   this.groupSet = {
+  //     xy:    { pos: [this.halfPlane, this.halfPlane, -this.gap-this.borderWidth*1], rot: [0, 0, 0] },
+  //     zy:    { pos: [-this.gap-this.borderWidth*1, this.halfPlane, this.halfPlane], rot: [0, Math.PI/2, 0] },
+  //     xz:    { pos: [this.halfPlane, -this.gap-this.borderWidth*1, this.halfPlane], rot: [Math.PI/2, 0, 0] },
+  //     ab:    { pos: [this.halfPlane, this.halfPlane ,this.pSize+this.gap+this.borderWidth*1], rot: [0, 0, 0] },
+  //     cb:    { pos: [this.pSize+this.gap+this.borderWidth*1, this.halfPlane, this.halfPlane], rot: [0, Math.PI/2, 0] },
+  //     ac:    { pos: [this.halfPlane, this.pSize+this.gap+this.borderWidth*1, this.halfPlane], rot: [Math.PI/2, 0, 0] },
+  //   };
+  //   for (const key in this.groups) {
+  //     const { pos, rot } = this.groupSet[key];
+  //     const group = this.groups[key];
+  //     group.position.set(...pos);
+  //     group.rotation.set(...rot);
+  //   }
+  // }
+
+  scaleGuides(renderer, camera) {
+    this.scaleLabels(camera.zoom);
+    this.updateGridSpacing(renderer, camera);
   }
 
   // Axis label scaling
@@ -323,6 +351,7 @@ export class SuperCube extends THREE.Group {
       fragmentShader: gridFragmentShader,
       uniforms: uniforms,
       transparent: true,
+      opacity: this.gridOpacity,
       depthWrite: false,
       blending: THREE.NormalBlending,
       side: THREE.DoubleSide,
@@ -354,6 +383,8 @@ export class SuperCube extends THREE.Group {
     outer.holes.push(inner);
 
     const geometry = new THREE.ShapeGeometry(outer);
+    // translate local origin to match planes
+    geometry.translate(this.pSize/2, this.pSize/2, 0);
     // Transparent: false, opacity: 0.4, depthWrite: false
     // Looks awesome.
     const material = new THREE.MeshBasicMaterial({
@@ -369,6 +400,8 @@ export class SuperCube extends THREE.Group {
 
   createOutline() {
     const outlineGeometry = new THREE.BufferGeometry().setFromPoints(this.outerPoints);
+    // Translate local origin to match planes.
+    outlineGeometry.translate(this.pSize/2, this.pSize/2, 0);
     const outlineMaterial = new THREE.LineBasicMaterial({ color: 0x000000 });
     return new THREE.LineLoop(outlineGeometry, outlineMaterial);
   }
@@ -395,6 +428,10 @@ export class SuperCube extends THREE.Group {
     return sprite;
   }
 
+  get gridSpacing() {
+    return this._gridSpacing;
+  }
+
   updateGridSpacing(renderer, camera) {
     // Orthographic camera
     const height = renderer.domElement.height;
@@ -406,6 +443,8 @@ export class SuperCube extends THREE.Group {
 
     let spacing = getRoundedSpacing(rawSpacing);
     spacing = Math.max(spacing, 0.5); // minimum spacing
+
+    this._gridSpacing = spacing;
 
     for (const grid of this.grids) {
       const mat = grid.material.uniforms;
@@ -430,8 +469,8 @@ export class SuperCube extends THREE.Group {
 
 
 function getRoundedSpacing(rawSpacing) {
-  const steps = [1, 2, 5];
-  const base = Math.pow(50, Math.floor(Math.log10(rawSpacing)));
+  const steps = [1, 2, 5, 10, 20];
+  const base = Math.pow(10, Math.floor(Math.log10(rawSpacing)));
   for (let step of steps) {
     const spacing = base * step;
     if (spacing >= rawSpacing) return spacing;
