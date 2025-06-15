@@ -9,7 +9,7 @@ export class Build extends THREE.Group {
     // planes from cube
     this.planes = planes;
     // Size of the build box for projecting the 3D objects
-    this.size = planeSize;
+    this.size = planeSize; 
 
     this.buildBox = null;
 
@@ -79,6 +79,8 @@ export class Build extends THREE.Group {
     const posAttr = geometry.attributes.position;
     const count = posAttr.count;
 
+    const planeName = sketch.parent.name;
+
     // Extract points from geometry
     const points = [];
     for (let i = 0; i < count; i++) {
@@ -87,8 +89,17 @@ export class Build extends THREE.Group {
 
     // Check if closed loop (first and last points roughly equal)
     const isClosed = points[0].distanceTo(points[points.length - 1]) < 1e-5;
-    // Extrusion direction, works for xy and ab planes.
-    const direction = new THREE.Vector3(0, 0, 1);
+
+    console.log(points[0]);
+    // Determine extrusion direction based on plane
+    const direction = new THREE.Vector3(0, 0, 1); // Default extrusion direction (Z axis)
+
+    // If closed, remove the last point to avoid duplication
+    if (isClosed) {
+      points.pop();
+      points.push(points[0].clone());
+    }
+
     // Default extrusion distance
     const distance = this.size;
 
@@ -98,7 +109,7 @@ export class Build extends THREE.Group {
 
     // Array for vertices
     const vertices = [];
-    // Arrray for textures
+    // Array for textures
     // u for horizontal, v for vertical
     const uvs = [];
     const lengths = [];
@@ -178,21 +189,28 @@ export class Build extends THREE.Group {
     }
 
     // -- Shared material and mesh creation --
-    const color = isClosed ? 0xCCCCCC : 0xCCCCCC;
+    const color = 0xCCCCCC;
     const material = new THREE.MeshStandardMaterial({
       color,
       side: THREE.DoubleSide,
-      flatShading: true,
+      flatShading: true
     });
 
     const mesh = new THREE.Mesh(finalGeometry, material);
     mesh.geometry.computeVertexNormals();
+
+    if (planeName === 'ZY' || planeName === 'CB') {
+      mesh.rotation.y = Math.PI / 2;
+      mesh.position.z += this.size;
+    } else if (planeName === 'XZ' || planeName === 'AC') {
+      mesh.rotation.x = Math.PI / 2;
+      mesh.position.y += this.size;
+    }
     
     const edges = new THREE.EdgesGeometry(finalGeometry);
     const lineMaterial = new THREE.LineBasicMaterial({ color: 0x000000 });
     const edgeLines = new THREE.LineSegments(edges, lineMaterial);
     mesh.add(edgeLines); // add as child to move/scale with mesh
-
 
     app.scene.add(mesh);
     this.objects.injects.push(mesh);

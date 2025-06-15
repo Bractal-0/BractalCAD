@@ -61,7 +61,7 @@ function init () {
 
   renderer = createRenderer();
   // Set camera position and orientation;
-  // Center of cube
+  // Center of cube 
   center = new THREE.Vector3(cube.halfPlane, cube.halfPlane, -cube.halfPlane);
   defaultOrbit = new THREE.Vector3(-cube.pSize-cube.gap, cube.pSize*2+cube.gap, cube.pSize+cube.gap);
 

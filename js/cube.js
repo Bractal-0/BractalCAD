@@ -8,7 +8,7 @@ import { cloneUniforms } from 'three/src/renderers/shaders/UniformsUtils.js';
 // Super Cube
 export class SuperCube extends THREE.Group {
   constructor() {
-    super();
+    super(); 
 
     // Planes
     this.pSize = 1000;
@@ -138,12 +138,12 @@ export class SuperCube extends THREE.Group {
     this.acPlane.userData.isDrawPlane = true;
 
     // Set plane names
-    this.xyPlane.name = 'XY : RED';
-    this.zyPlane.name = 'ZY : YELLOW';
-    this.xzPlane.name = 'XZ : BLUE';
-    this.abPlane.name = 'AB : PINK';
-    this.cbPlane.name = 'CB : GREEN';
-    this.acPlane.name = 'AC : ORANGE';
+    this.xyPlane.name = 'XY';
+    this.zyPlane.name = 'ZY';
+    this.xzPlane.name = 'XZ';
+    this.abPlane.name = 'AB';
+    this.cbPlane.name = 'CB';
+    this.acPlane.name = 'AC';
 
     this.baseUniforms = {
       u_plane: { value: 0 },
@@ -465,8 +465,6 @@ export class SuperCube extends THREE.Group {
     //console.log('spacing: ', spacing);
   }
 }
-
-
 
 function getRoundedSpacing(rawSpacing) {
   const steps = [1, 2, 5, 10, 20];
