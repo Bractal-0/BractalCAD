@@ -8,7 +8,56 @@
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <canvas id="background"></canvas>
+  <div class="canvas-wrapper">
+    <canvas id="background"></canvas>
+  </div>
+
+  <div id="menu">
+    <ul>
+      <li><button class="dropdown-toggle"><u>F</u>ile</button>
+        <ul class="dropdown">
+          <li><button class="dropdown-toggle">New</button>
+            <ul class="dropdown">
+              <li><button>New Project</button></li>
+              <li><button>New Document</button></li>
+            </ul>
+          </li>
+          <li><button class="dropdown-toggle">Open</button>
+            <ul class="dropdown">
+              <li><button>Open Project</button></li>
+              <li><button>Open Document</button></li>
+            </ul>
+          </li>
+          <li><button class="dropdown-toggle">Save</button>
+            <ul class="dropdown">
+              <li><button>Save Project</button></li>
+              <li><button>Save Document</button></li>
+            </ul>
+          </li>
+          <li><button class="dropdown-toggle">Save As</button>
+            <ul class="dropdown">
+              <li><button>Save Project As</button></li>
+              <li><button>Save Document As</button></li>
+            </ul>
+          </li>
+          <li><button class="dropdown-toggle">Import</button>
+            <ul class="dropdown">
+              <li><button>STL</button></li>
+            </ul>
+          </li>
+          <li>
+            <button class="dropdown-toggle">Export</button>
+            <ul class="dropdown">
+              <li><button>STL</button></li>
+            </ul>
+          </li>
+        </ul>
+      <li><button><u>E</u>dit</button></li>
+      <li><button><u>V</u>iew</button></li>
+      <li><button><u>S</u>ettings</button></li>
+      <li><button><u>H</u>elp</button></li>
+    </ul>
+  </div>
   
   <div id="user-interface">
     <div id="camera-controls">
@@ -77,5 +126,6 @@
   </div>
 
   <script type="module" src="js/main.js"></script>
+  <script type="module" src="js/menu.js"></script>
 </body>
 </html>

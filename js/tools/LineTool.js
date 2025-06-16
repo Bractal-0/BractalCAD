@@ -27,7 +27,7 @@ export default class LineTool extends DrawingTool {
     this.activePlane = raycast.plane;
   }
 
-  onMouseMove() {
+  onPointerMove() {
     if (
       !this.enabled ||
       !this.isDrawing ||
@@ -59,7 +59,7 @@ export default class LineTool extends DrawingTool {
 
     const intersected = this.raycast.object;
 
-    // Custom test: is this a draw plane?
+    // if draw plane
     if (!intersected.userData.isDrawPlane) {
       this.finalise();
       this.reset();
@@ -67,6 +67,14 @@ export default class LineTool extends DrawingTool {
     }
 
     const clickedPlane = intersected;
+
+    if (clickedPlane !== this.activePlane && this.isDrawing) {
+      // If we clicked a different plane, finalise the current line
+      this.finalise();
+      this.reset();
+      return;
+    }
+
     let localPoint = clickedPlane.worldToLocal(this.raycast.point.clone());
     localPoint = this.snapToGrid(localPoint);
 
@@ -88,6 +96,16 @@ export default class LineTool extends DrawingTool {
       this.tempLine.geometry.dispose();
       this.tempLine.geometry = new THREE.BufferGeometry().setFromPoints(updatedPoints);
 
+      // Finalise if we have at least 2 points
+      if (this.points.length > 1) {
+        this.tempLine.geometry.setDrawRange(0, this.points.length);
+      }
+      this.finalise();
+
+      if (localPoint.equals(this.points[0])) {
+        // If we clicked the first point again, close the line
+        this.reset();
+      }
     }
   }
 
@@ -98,7 +116,6 @@ export default class LineTool extends DrawingTool {
       const finalLine = new THREE.Line(finalGeometry, this.lineMaterial.clone());
       this.build.addSketch(finalLine, this.activePlane);
     }
-    this.reset();
   }
 
   reset() {

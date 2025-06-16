@@ -1,21 +1,113 @@
 * {
   box-sizing: border-box;
 }
+html, body {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  font-family: monospace;
+}
+#canvas-wrapper {
+  flex: 1;
+  position: relative;
+}
 #background {
-  position: fixed;
+  position: absolute;
   top: 0;
   left: 0;
   display: block;
   width: 100dvw !important;
   height: 100dvh !important;
+  z-index: 0;
 }
-html, body {
+ul li {
+  list-style: none;
   margin: 0;
   padding: 0;
-  overflow: hidden;
+  background-color: white;
+}
+#menu {
+  position: fixed;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  top: 0;
+  left: 0;
   width: 100dvw;
-  height: 100dvh;
-  font-family: monospace;
+  height: 26px;
+  z-index: 1000;
+  border-bottom: 1px solid black;
+  background-color: white;
+  pointer-events: auto;
+}
+#menu ul {
+  display: flex;
+  height: 100%;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  pointer-events: auto;
+}
+#menu li {
+  position: relative;
+  height: 100%;
+  pointer-events: auto;
+}
+#menu button {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 1rem;
+  background: none;
+  border: none;
+  font: inherit;
+  cursor: pointer;
+  background: none;
+}
+#menu button:hover {
+  background-color: rgb(210, 210, 210);
+}
+#menu .dropdown {
+  display: none;
+  position: absolute;
+  margin-top: 1px;
+  top: 100%;
+  left: 0;
+  min-width: max-content;
+  flex-direction: column;
+  background-color: white;
+  z-index: 1001;
+}
+.dropdown li {
+  position: relative;
+  height: auto;
+  overflow: hidden;
+  pointer-events: auto;
+  padding: 1rem 0;
+}
+.dropdown button {
+  width: 100%;
+  padding: 0.5rem 1rem;
+  text-align: left;
+  background-color: white;
+  border: none;
+  cursor: pointer;
+}
+.dropdown button:hover {
+  background-color: #eee;
+}
+#menu li.open > .dropdown {
+  display: flex;
+}
+.dropdown .dropdown {
+  position: absolute;
+  top: 0;
+  left: 100%; /* default open to right */
 }
 .home-icon {
   display: flex;
@@ -45,10 +137,11 @@ html, body {
   justify-content: flex-start;
   align-items: flex-start;
   width: 30px;
-  top: 4%;
-  left: 3%;
+  top: 10dvh;
+  left: 1rem;
   border: none;
-  gap: 12px;
+  gap: 1rem;
+  pointer-events: auto;
 }
 .camera-control {
   display: flex;
@@ -106,6 +199,7 @@ html, body {
   height: auto;
   border: none;
   gap: 12px;
+  pointer-events: auto;
 }
 .setting {
   display: flex;
@@ -133,6 +227,7 @@ html, body {
   height: auto;
   border: none;
   gap: 10px;
+  pointer-events: auto;
 }
 #tools button {
   cursor: pointer;

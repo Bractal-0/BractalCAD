@@ -40,7 +40,7 @@ export default class RectangleTool extends DrawingTool {
     }
   }
 
-  onMouseMove() {
+  onPointerMove() {
     if (!this.enabled || !this.isDrawing || !this.activePlane) return;
 
     const end = this.raycast.localPoint;

@@ -1,8 +1,8 @@
 import * as THREE from 'three';
 
 export default class Camera extends THREE.OrthographicCamera {
-  constructor(defaultOrbit, center, far) {
-    const aspect = window.innerWidth / window.innerHeight;
+  constructor(canvas, defaultOrbit, center, far) {
+    const aspect = canvas.clientWidth / canvas.clientHeight;
     const frustrumSize = 50;
 
     const halfW = aspect * frustrumSize / 2;

@@ -33,6 +33,8 @@ let center, defaultOrbit;
 // White background
 let background = new THREE.Color(0xffffff);
 
+const canvas = document.querySelector('#background');
+
 // Camera settings
 let cameraZoom, cameraFar, frustrumSize;
 
@@ -69,7 +71,7 @@ function init () {
   cameraFar = cube.pSize*4 + cube.gap*4 + 500;
 
   // camera
-  camera = new Camera(defaultOrbit, center, cameraFar);
+  camera = new Camera(canvas, defaultOrbit, center, cameraFar);
 
   // Orbit controls
   controls = createControls(camera, renderer);
@@ -104,7 +106,7 @@ function init () {
   app.camera.refresh();
 
   // Dynamic resizing of window
-  addResizeListener(app.camera, frustrumSize, app.renderer);
+  addResizeListener(canvas, app.camera, frustrumSize, app.renderer);
 
   // Ready settings
   setupSettings();

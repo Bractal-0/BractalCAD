@@ -17,8 +17,8 @@ let intersection;
 let localPoint;
 
 function onPointerMove(e) {
-  pointer.x = ( e.clientX / window.innerWidth ) * 2 - 1;
-  pointer.y = - ( e.clientY / window.innerHeight ) * 2 + 1;
+  pointer.x = (e.clientX / window.innerWidth) * 2 - 1;
+  pointer.y = -(e.clientY / window.innerHeight) * 2 + 1;
 }
 
 document.addEventListener('pointermove', onPointerMove, false);

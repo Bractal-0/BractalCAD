@@ -30,18 +30,21 @@ export function initListeners(toolManager, controls, lineTool) {
   });
 
   // Mouse listeners
-    window.addEventListener('mousemove', (e) => {
-    toolManager.onMouseMove(e);
+  window.addEventListener('pointermove', (e) => {
+    toolManager.onPointerMove(e);
   });
 
-  window.addEventListener('mousedown', (e) => {
+  window.addEventListener('pointerdown', (e) => {
+    
+    if (e.target.closest('#menu')) return; // ignore clicks inside menu
+
     if (!spaceDown) {
-      toolManager.onMouseDown(e);
+      toolManager.onPointerDown(e);
     }
   });
 
-  window.addEventListener('mouseup', (e) => {
-    toolManager.onMouseUp(e);
+  window.addEventListener('pointerup', (e) => {
+    toolManager.onPointerUp(e);
   });
 
 }

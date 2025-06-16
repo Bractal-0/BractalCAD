@@ -7,9 +7,9 @@ export class Build extends THREE.Group {
   constructor(planes, planeSize) {
     super();
     // planes from cube
-    this.planes = planes;
+    this.planes = planes ;
     // Size of the build box for projecting the 3D objects
-    this.size = planeSize; 
+    this.size = planeSize;
 
     this.buildBox = null;
 
@@ -90,15 +90,9 @@ export class Build extends THREE.Group {
     // Check if closed loop (first and last points roughly equal)
     const isClosed = points[0].distanceTo(points[points.length - 1]) < 1e-5;
 
-    console.log(points[0]);
+    //console.log(points[0]);
     // Determine extrusion direction based on plane
     const direction = new THREE.Vector3(0, 0, 1); // Default extrusion direction (Z axis)
-
-    // If closed, remove the last point to avoid duplication
-    if (isClosed) {
-      points.pop();
-      points.push(points[0].clone());
-    }
 
     // Default extrusion distance
     const distance = this.size;

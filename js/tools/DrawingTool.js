@@ -27,7 +27,7 @@ export default class DrawingTool {
   }
 
   // Child classes must override these
-  onMouseMove() {}
+  onPointerMove() {}
   draw() {}
   reset() {}
 }
