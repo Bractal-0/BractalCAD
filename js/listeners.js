@@ -35,8 +35,8 @@ export function initListeners(toolManager, controls, lineTool) {
   });
 
   window.addEventListener('pointerdown', (e) => {
-    
-    if (e.target.closest('#menu')) return; // ignore clicks inside menu
+
+    if (e.target.closest('.menu')) return; // ignore clicks inside menu
 
     if (!spaceDown) {
       toolManager.onPointerDown(e);

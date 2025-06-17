@@ -71,7 +71,7 @@ function init () {
   cameraFar = cube.pSize*4 + cube.gap*4 + 500;
 
   // camera
-  camera = new Camera(canvas, defaultOrbit, center, cameraFar);
+  camera = new Camera(defaultOrbit, center, cameraFar);
 
   // Orbit controls
   controls = createControls(camera, renderer);
@@ -106,7 +106,7 @@ function init () {
   app.camera.refresh();
 
   // Dynamic resizing of window
-  addResizeListener(canvas, app.camera, frustrumSize, app.renderer);
+  addResizeListener(app.camera, frustrumSize, app.renderer);
 
   // Ready settings
   setupSettings();

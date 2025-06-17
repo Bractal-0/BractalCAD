@@ -1,6 +1,6 @@
-export function addResizeListener(canvas, camera, frustrumSize = 10, renderer) {
+export function addResizeListener(camera, frustrumSize = 10, renderer) {
   function onWindowResize() {
-    const aspect = canvas.clientWidth / canvas.clientHeight;
+    const aspect = window.innerWidth / window.innerHeight;
 
     camera.left = -aspect * frustrumSize / 2;
     camera.right = aspect * frustrumSize / 2;
@@ -8,7 +8,7 @@ export function addResizeListener(canvas, camera, frustrumSize = 10, renderer) {
     camera.bottom = -frustrumSize / 2;
     camera.updateProjectionMatrix();
 
-    renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+    renderer.setSize(window.innerWidth, window.innerHeight);
   }
 
   window.addEventListener('resize', onWindowResize);

@@ -12,32 +12,28 @@
     <canvas id="background"></canvas>
   </div>
 
-  <div id="menu">
+  <div id="menu" class="menu">
+    <button id="toggle-menu-btn">&#x25C0;</button>
     <ul>
       <li><button class="dropdown-toggle"><u>F</u>ile</button>
         <ul class="dropdown">
           <li><button class="dropdown-toggle">New</button>
             <ul class="dropdown">
-              <li><button>New Project</button></li>
-              <li><button>New Document</button></li>
+              <li><button>New project</button></li>
             </ul>
           </li>
           <li><button class="dropdown-toggle">Open</button>
             <ul class="dropdown">
-              <li><button>Open Project</button></li>
-              <li><button>Open Document</button></li>
+              <li><button>Open project</button></li>
             </ul>
           </li>
           <li><button class="dropdown-toggle">Save</button>
             <ul class="dropdown">
-              <li><button>Save Project</button></li>
-              <li><button>Save Document</button></li>
+              <li><button>Save</button></li>
             </ul>
           </li>
           <li><button class="dropdown-toggle">Save As</button>
             <ul class="dropdown">
-              <li><button>Save Project As</button></li>
-              <li><button>Save Document As</button></li>
             </ul>
           </li>
           <li><button class="dropdown-toggle">Import</button>
@@ -56,6 +52,35 @@
       <li><button><u>V</u>iew</button></li>
       <li><button><u>S</u>ettings</button></li>
       <li><button><u>H</u>elp</button></li>
+      <li><button><u>A</u>bout</button></li>
+      <li><button><u>D</u>onate</button></li>
+    </ul>
+  </div>
+
+  <div id="inspector" class="menu">
+    <button id="toggle-inspector-btn">&#x25B6;</button>
+    <ul>
+      <li><button class="inspector-dropdown-toggle">Properties</button>
+        <ul class="dropdown">
+          <li><button>Line</button></li>
+          <li><button>Rectangle</button></li>
+          <li><button>Circle</button></li>
+          <li><button>Ellipse</button></li>
+          <li><button>Arc</button></li>
+        </ul>
+      </li>
+      <li><button class="inspector-dropdown-toggle">Layers</button>
+        <ul class="dropdown">
+          <li><button>Add Layer</button></li>
+          <li><button>Remove Layer</button></li>
+        </ul>
+      </li>
+      <li><button class="inspector-dropdown-toggle">History</button>
+        <ul class="dropdown">
+          <li><button>Undo</button></li>
+          <li><button>Redo</button></li>
+        </ul>
+      </li>
     </ul>
   </div>
   

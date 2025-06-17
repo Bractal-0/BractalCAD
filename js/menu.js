@@ -13,40 +13,43 @@ import { app } from './app.js';
 
 document.addEventListener('DOMContentLoaded', () => {
   const menu = document.querySelector('#menu');
+  const toggleMenuBtn = document.querySelector('#toggle-menu-btn');
+  const toggleInspectorBtn = document.querySelector('#toggle-inspector-btn');
 
-  const canvas = app.renderer.domElement;
 
-  // Menu click logic
-  menu.addEventListener('pointerdown', (e) => {
-    // Close any other open dropdowns
-    document.querySelectorAll('#menu li.open').forEach(li => {
-      if (!li.contains(e.target)) li.classList.remove('open');
+  // Toggle dropdown menus
+  const closeOtherDropdowns = (target) => {
+    document.querySelectorAll('#menu li.open').forEach((li) => {
+      if (!li.contains(target)) li.classList.remove('open');
     });
+  };
 
-    // Toggle the clicked dropdown
-    if (e.target.classList.contains('dropdown-toggle')) {
-      const li = e.target.closest('li');
-      li.classList.toggle('open');
+  menu.addEventListener('pointerdown', (e) => {
+    const button = e.target.closest('.dropdown-toggle');
+    if (button) {
+      const li = button.closest('li');
+      const isOpen = li.classList.contains('open');
+      closeOtherDropdowns(button);
+      li.classList.toggle('open', !isOpen);
+      e.stopPropagation();
     }
   });
 
-  document.querySelectorAll('#menu li').forEach(item => {
-    item.addEventListener('pointerenter', (e) => {
-      const submenu = item.querySelector('.dropdown');
+  // Hover behavior for submenus (optional enhancement)
+  menu.querySelectorAll('li').forEach((li) => {
+    li.addEventListener('pointerenter', () => {
+      const submenu = li.querySelector(':scope > .dropdown');
       if (submenu && submenu.parentElement.closest('.dropdown')) {
-        // This is a nested dropdown
-        submenu.style.display = 'flex'; // Temporarily show to measure
-        submenu.style.visibility = 'hidden'; // Prevent flicker
-
+        li.classList.add('open');
+        submenu.style.display = 'flex';
+        submenu.style.visibility = 'hidden'; // prevent flicker
         const rect = submenu.getBoundingClientRect();
-        const viewportWidth = window.innerWidth;
+        const vw = window.innerWidth;
 
-        if (rect.right > viewportWidth) {
-          // Not enough space on the right → open to the left
+        if (rect.right > vw) {
           submenu.style.left = 'auto';
           submenu.style.right = '100%';
         } else {
-          // Enough space → open to the right
           submenu.style.left = '100%';
           submenu.style.right = 'auto';
         }
@@ -55,8 +58,9 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
 
-    item.addEventListener('pointerleave', (e) => {
-      const submenu = item.querySelector('.dropdown');
+    li.addEventListener('pointerleave', () => {
+      li.classList.remove('open');
+      const submenu = li.querySelector(':scope > .dropdown');
       if (submenu) {
         submenu.style.display = '';
         submenu.style.left = '';
@@ -66,13 +70,51 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-
-  // Click-outside-to-close logic
+  // Click outside to close
   document.addEventListener('pointerdown', (e) => {
     if (!menu.contains(e.target)) {
-      document.querySelectorAll('#menu li.open').forEach(li => {
+      document.querySelectorAll('#menu li.open').forEach((li) => {
         li.classList.remove('open');
       });
     }
   });
+
+  // Menu toggle button logic
+  let menuOpen = true;
+
+  toggleMenuBtn.addEventListener('click', () => {
+    menuOpen = !menuOpen;
+
+    if (menuOpen) {
+      toggleMenuBtn.innerHTML = '&#x25C0;'; // ◀
+      menu.classList.remove('collapsed');
+      toggleMenuBtn.classList.remove('collapsed');
+    } else {
+      toggleMenuBtn.innerHTML = '&#x25B6;'; // ▶
+      menu.classList.add('collapsed');
+      toggleMenuBtn.classList.add('collapsed');
+    }
+  });
+
+  let inspectorOpen = true;
+
+  toggleInspectorBtn.addEventListener('click', () => {
+    inspectorOpen = !inspectorOpen;
+
+    if (inspectorOpen) {
+      toggleInspectorBtn.innerHTML = '&#x25B6;'; // ▶
+      inspector.classList.remove('collapsed');
+      toggleInspectorBtn.classList.remove('collapsed');
+    } else {
+      toggleInspectorBtn.innerHTML = '&#x25C0;'; // ◀
+      inspector.classList.add('collapsed');
+      toggleInspectorBtn.classList.add('collapsed');
+    }
+  });
+
+
+
+
+
+
 });

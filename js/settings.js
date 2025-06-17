@@ -4,9 +4,9 @@ import { app } from './app.js';
 
 export function setupSettings() {
 
-  const cubeSettings = new GUI();
-  cubeSettings.add(app.cube, 'gap', 0, app.cube.pSize,  0.1).onChange(() => {
-    app.cube.updateGapScale();
-  });
+  // const cubeSettings = new GUI();
+  // cubeSettings.add(app.cube, 'gap', 0, app.cube.pSize,  0.1).onChange(() => {
+  //   app.cube.updateGapScale();
+  // });
 }
 

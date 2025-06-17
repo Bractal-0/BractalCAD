@@ -23,51 +23,95 @@ html, body {
   height: 100dvh !important;
   z-index: 0;
 }
+button {
+  display: flex;
+  flex: 1;
+  height: 100%;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  border: none;
+  cursor: pointer;
+}
 ul li {
   list-style: none;
   margin: 0;
   padding: 0;
   background-color: white;
 }
+#menu #toggle-menu-btn {
+  position: absolute;
+  display: flex;
+  top: 0;
+  left: 74.5px;
+  width: 40px;
+  height: 40px;
+  font-size: large;
+  background-color: white;
+  border: 1px solid black;
+  cursor: pointer;
+  z-index: 1002;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  vertical-align: middle;
+  margin: 0;
+  padding: 0;
+}
+#menu #toggle-menu-btn.collapsed {
+  transform: translateX(-74px);
+}
 #menu {
   position: fixed;
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-start;
-  align-items: center;
   top: 0;
   left: 0;
-  width: 100dvw;
-  height: 26px;
+  width: 75px;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: stretch;
   z-index: 1000;
-  border-bottom: 1px solid black;
+  border-right: 1px solid black;
   background-color: white;
   pointer-events: auto;
 }
+#menu.collapsed {
+  width: 0;
+}
+#menu.collapsed ul {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
 #menu ul {
+  opacity: 1;
+  flex: 1;
+  visibility: visible;
   display: flex;
-  height: 100%;
+  flex-direction: column;
   list-style: none;
   margin: 0;
   padding: 0;
-  pointer-events: auto;
 }
 #menu li {
+  flex: 1;
   position: relative;
   height: 100%;
-  pointer-events: auto;
+  overflow: visible;
 }
 #menu button {
+  width: 100%;
   height: 100%;
+  text-align: left;
+  padding: 0 1rem;
+  font: inherit;
+  background: transparent;
+  border: none;
+  cursor: pointer;
   display: flex;
   align-items: center;
-  justify-content: center;
-  padding: 0 1rem;
-  background: none;
-  border: none;
-  font: inherit;
-  cursor: pointer;
-  background: none;
 }
 #menu button:hover {
   background-color: rgb(210, 210, 210);
@@ -75,39 +119,107 @@ ul li {
 #menu .dropdown {
   display: none;
   position: absolute;
-  margin-top: 1px;
-  top: 100%;
-  left: 0;
-  min-width: max-content;
+  top: 0;
+  left: 100%;
+  height: auto;
+  text-wrap: wrap;
   flex-direction: column;
   background-color: white;
+  border: 1px solid black;
   z-index: 1001;
 }
-.dropdown li {
-  position: relative;
-  height: auto;
-  overflow: hidden;
-  pointer-events: auto;
-  padding: 1rem 0;
-}
-.dropdown button {
+#menu .dropdown button {
+  flex: 1;
   width: 100%;
-  padding: 0.5rem 1rem;
+  height: 100%;
   text-align: left;
   background-color: white;
   border: none;
   cursor: pointer;
 }
-.dropdown button:hover {
-  background-color: #eee;
+#menu .dropdown button:hover {
+  background-color: rgb(210, 210, 210);
 }
 #menu li.open > .dropdown {
   display: flex;
 }
-.dropdown .dropdown {
-  position: absolute;
+#menu .dropdown .dropdown {
   top: 0;
   left: 100%; /* default open to right */
+}
+#inspector {
+  position: fixed;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: stretch;
+  top: 0;
+  right: 0;
+  width: 150px;
+  height: 100dvh;
+  z-index: 1000;
+  background-color: white;
+  border-left: 1px solid black;
+}
+#inspector button {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  text-align: right;
+  padding: 0 1rem;
+  font: inherit;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  align-items: center;
+}
+#inspector.collapsed {
+  width: 0;
+}
+#inspector.collapsed ul {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+#inspector #toggle-inspector-btn {
+  position: absolute;
+  display: flex;
+  top: 0;
+  right: 149.5px;
+  width: 40px;
+  height: 40px;
+  font-size: large;
+  background-color: white;
+  border: 1px solid black;
+  cursor: pointer;
+  z-index: 1002;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  vertical-align: middle;
+  margin: 0;
+  padding: 0;
+}
+#inspector #toggle-inspector-btn.collapsed {
+  transform: translateX(149.5px);
+}
+#inspector ul {
+  opacity: 1;
+  flex: 1;
+  visibility: visible;
+  display: flex;
+  flex-direction: column;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid black;
+  border-bottom: 1px solid black;
+}
+#inspector li {
+  flex: 1;
+  position: relative;
+  height: 100%;
+  overflow: visible;
 }
 .home-icon {
   display: flex;
