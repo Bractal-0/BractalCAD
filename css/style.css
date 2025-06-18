@@ -23,41 +23,36 @@ html, body {
   height: 100dvh !important;
   z-index: 0;
 }
-button {
-  display: flex;
-  flex: 1;
-  height: 100%;
-  width: 100%;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  border: none;
-  cursor: pointer;
-}
 ul li {
   list-style: none;
   margin: 0;
   padding: 0;
   background-color: white;
 }
-#menu #toggle-menu-btn {
+.toggle-sidebar-btn {
   position: absolute;
   display: flex;
-  top: 0;
-  left: 74.5px;
+  bottom: 20%;
   width: 40px;
   height: 40px;
+
   font-size: large;
+
   background-color: white;
   border: 1px solid black;
+
   cursor: pointer;
+
   z-index: 1002;
   align-items: center;
   justify-content: center;
   text-align: center;
-  vertical-align: middle;
+
   margin: 0;
   padding: 0;
+}
+.toggle-sidebar-btn:hover {
+  background-color: rgb(210, 210, 210);
 }
 #menu #toggle-menu-btn.collapsed {
   transform: translateX(-74px);
@@ -70,12 +65,12 @@ ul li {
   height: 100dvh;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
-  align-items: stretch;
   z-index: 1000;
   border-right: 1px solid black;
   background-color: white;
   pointer-events: auto;
+  padding: 0;
+  margin: 0;
 }
 #menu.collapsed {
   width: 0;
@@ -86,12 +81,12 @@ ul li {
   pointer-events: none;
 }
 #menu ul {
-  opacity: 1;
   flex: 1;
   visibility: visible;
   display: flex;
   flex-direction: column;
   list-style: none;
+  text-align: left;
   margin: 0;
   padding: 0;
 }
@@ -101,7 +96,7 @@ ul li {
   height: 100%;
   overflow: visible;
 }
-#menu button {
+#menu li button {
   width: 100%;
   height: 100%;
   text-align: left;
@@ -113,7 +108,7 @@ ul li {
   display: flex;
   align-items: center;
 }
-#menu button:hover {
+#menu li button:hover {
   background-color: rgb(210, 210, 210);
 }
 #menu .dropdown {
@@ -161,18 +156,6 @@ ul li {
   background-color: white;
   border-left: 1px solid black;
 }
-#inspector button {
-  display: flex;
-  width: 100%;
-  height: 100%;
-  text-align: right;
-  padding: 0 1rem;
-  font: inherit;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  align-items: center;
-}
 #inspector.collapsed {
   width: 0;
 }
@@ -180,25 +163,6 @@ ul li {
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
-}
-#inspector #toggle-inspector-btn {
-  position: absolute;
-  display: flex;
-  top: 0;
-  right: 149.5px;
-  width: 40px;
-  height: 40px;
-  font-size: large;
-  background-color: white;
-  border: 1px solid black;
-  cursor: pointer;
-  z-index: 1002;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  vertical-align: middle;
-  margin: 0;
-  padding: 0;
 }
 #inspector #toggle-inspector-btn.collapsed {
   transform: translateX(149.5px);
@@ -221,6 +185,75 @@ ul li {
   height: 100%;
   overflow: visible;
 }
+.tab {
+  overflow: hidden;
+}
+#inspector .tab.collapsed .tab-content {
+  display: none;
+}
+.tab-header {
+  height: 30px;
+  display: flex;
+  align-content: center;
+  justify-content: center;
+  text-align: center;
+  color: white;
+  cursor: grab;
+  background-color: #616161;
+  border: 1px solid black;
+}
+.tab-label {
+  flex: 1;
+}
+.toggle-tab-btn {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  justify-content: space-between;
+  text-align: center;
+  color: white;
+  border: none;
+  cursor: pointer;
+  background-color: transparent;
+}
+.tab-content {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  cursor: default;
+}
+.tab-content li {
+  padding: 8px 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+label {
+  cursor: pointer;
+  padding: 4px 0;
+  margin-left: 2px;
+  margin-top: 2px;
+  margin-bottom: 2px;
+  user-select: none; /* Prevent text selection */
+}
+input[type="checkbox"] {
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+}
+#plane-toggles {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px 2px;
+  border-bottom: 1px solid black;
+}
+#toggle-grids-label {
+  border-bottom: 1px solid black;
+}
+
+
+
 .home-icon {
   display: flex;
   max-width: 40px !important;

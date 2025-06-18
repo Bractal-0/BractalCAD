@@ -12,17 +12,10 @@ export default function createControls(camera, renderer) {
   controls.zoomSpeed = 1;
   controls.rotateSpeed = 0.5;
 
-  // Remap mouse buttons
-  controls.mouseButtons = {
-    LEFT: THREE.MOUSE.PAN,
-    MIDDLE: THREE.MOUSE.DOLLY,
-    RIGHT: THREE.MOUSE.ROTATE
-  };
-
   // Remap touch gestures
   controls.touches = {
-    ONE: THREE.TOUCH.PAN,
-    TWO: THREE.TOUCH.ROTATE
+    ONE: THREE.TOUCH.ROTATE,
+    TWO: THREE.TOUCH.PAN
   };
 
   return controls;

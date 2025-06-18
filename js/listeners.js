@@ -1,23 +1,20 @@
 import * as THREE from 'three';
+import { app } from './app.js';
 
 export function initListeners(toolManager, controls, lineTool) {
-  let spaceDown = false;
 
   // Start panning
   window.addEventListener('keydown', (e) => {
-    if (e.code === 'Space' && !spaceDown) {
-      spaceDown = true;
-      controls.mouseButtons.LEFT = THREE.MOUSE.PAN;
-    }
+    if (e.code === 'Space') { app.spaceDown = true; }
   });
 
   // stop panning
   window.addEventListener('keyup', (e) => {
-    if (e.code === 'Space') {
-      spaceDown = false;
- 
-      controls.mouseButtons.LEFT = null; // disable left mouse button
-    }
+    if (e.code === 'Space') { app.spaceDown = false; }
+  });
+
+  app.renderer.domElement.addEventListener('pointerup', (e) => {
+    app.controls.mouseButtons.LEFT = THREE.MOUSE.ROTATE;
   });
 
   // To stop drawing
@@ -38,7 +35,7 @@ export function initListeners(toolManager, controls, lineTool) {
 
     if (e.target.closest('.menu')) return; // ignore clicks inside menu
 
-    if (!spaceDown) {
+    if (!app.spaceDown) {
       toolManager.onPointerDown(e);
     }
   });

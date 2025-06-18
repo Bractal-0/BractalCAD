@@ -80,10 +80,6 @@ function init () {
   camera.setPos(defaultOrbit);
   camera.setTarget(center);
   camera.zoom = cameraZoom;
-  
-  // Disable left mouse button
-  // hold space to use left mouse to pan
-  controls.mouseButtons.LEFT = null;
 
   // Prepare 3D build box
   build = new Build(cube.planes, cube.pSize);
@@ -110,6 +106,14 @@ function init () {
 
   // Ready settings
   setupSettings();
+
+  // Make sure this runs before OrbitControls processes the event
+  app.renderer.domElement.addEventListener('pointerdown', (e) => {
+    if (e.pointerType === 'mouse' && e.button === 0) {
+      app.controls.mouseButtons.LEFT = app.spaceDown ? THREE.MOUSE.PAN : THREE.MOUSE.ROTATE;
+    }
+  }, { capture: true }); // 'capture' ensures we run before OrbitControls
+
 
   // Set up listeners
   initListeners(toolManager, controls, lineToolInstance);

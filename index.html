@@ -13,7 +13,7 @@
   </div>
 
   <div id="menu" class="menu">
-    <button id="toggle-menu-btn">&#x25C0;</button>
+    <button id="toggle-menu-btn" class="toggle-sidebar-btn" style="left: 74.5px; bottom: 20%;">&#x25C0;</button>
     <ul>
       <li><button class="dropdown-toggle"><u>F</u>ile</button>
         <ul class="dropdown">
@@ -58,31 +58,86 @@
   </div>
 
   <div id="inspector" class="menu">
-    <button id="toggle-inspector-btn">&#x25B6;</button>
-    <ul>
-      <li><button class="inspector-dropdown-toggle">Properties</button>
-        <ul class="dropdown">
-          <li><button>Line</button></li>
-          <li><button>Rectangle</button></li>
-          <li><button>Circle</button></li>
-          <li><button>Ellipse</button></li>
-          <li><button>Arc</button></li>
-        </ul>
-      </li>
-      <li><button class="inspector-dropdown-toggle">Layers</button>
-        <ul class="dropdown">
-          <li><button>Add Layer</button></li>
-          <li><button>Remove Layer</button></li>
-        </ul>
-      </li>
-      <li><button class="inspector-dropdown-toggle">History</button>
-        <ul class="dropdown">
-          <li><button>Undo</button></li>
-          <li><button>Redo</button></li>
-        </ul>
-      </li>
-    </ul>
+    <button id="toggle-inspector-btn" class="toggle-sidebar-btn" style="right: 149.3px; bottom: 20%;">&#x25B6;</button>
+
+    <div class="tab" class="collapsed">
+      <div class="tab-header">
+        <button class="toggle-tab-btn">
+          <span class="arrow">‹</span>
+          <span class="tab-label">Toggle</span>
+        </button>
+      </div>
+      <ul class="tab-content">
+        <label>
+          <input type="checkbox" id="toggle-all-planes" checked>
+          <span>Planes</span>
+        </label>
+
+        <div id="plane-toggles">
+          <label>
+            <input type="checkbox" id="toggle-xy" checked>
+            <span>XY</span>
+          </label>
+          <label>
+            <input type="checkbox" id="toggle-zy" checked>
+            <span>ZY</span>
+          </label>
+          <label>
+            <input type="checkbox" id="toggle-xz" checked>
+            <span>XZ</span>
+          </label>
+          <label>
+            <input type="checkbox" id="toggle-ab" checked>
+            <span>AB</span>
+          </label>
+          <label>
+            <input type="checkbox" id="toggle-cb" checked>
+            <span>CB</span>
+          </label>
+          <label>
+            <input type="checkbox" id="toggle-ac" checked>
+            <span>AC</span>
+          </label>
+        </div>
+        <label id="toggle-grids-label">
+          <input type="checkbox" id="toggle-grids" checked>
+          <span>Grids</span>
+        </label>
+        <label>
+          <input type="checkbox" id="toggle-borders" checked>
+          <span>Borders</span>
+        </label>
+      </ul>
+    </div>
+
+    <div class="tab" class="collapsed">
+      <div class="tab-header">
+        <button class="toggle-tab-btn">
+          <span class="arrow">‹</span>
+          <span class="tab-label">Tools</span>
+        </button>
+      </div>
+      <ul class="tab-content">
+        <li><span>[icon]--</span>Line</li>
+      </ul>
+    </div>
+
+    <div class="tab" class="collapsed">
+      <div class="tab-header">
+        <button class="toggle-tab-btn">
+          <span class="arrow">‹</span>
+          <span class="tab-label">Layers</span>
+        </button>
+      </div>
+      <ul class="tab-content">
+        <li><span>[icon]--</span>Layer 1</li>
+        <li><span>[icon]--</span>Layer 2</li>
+      </ul>
+    </div>
+
+
   </div>
+
   
   <div id="user-interface">
     <div id="camera-controls">

@@ -5,5 +5,6 @@ export const app = {
   controls: null,
   raycast: null,
   cube: null,
-  build: null
+  build: null,
+  spaceDown: false,
 };

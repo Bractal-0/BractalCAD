@@ -14,8 +14,6 @@ import { app } from './app.js';
 document.addEventListener('DOMContentLoaded', () => {
   const menu = document.querySelector('#menu');
   const toggleMenuBtn = document.querySelector('#toggle-menu-btn');
-  const toggleInspectorBtn = document.querySelector('#toggle-inspector-btn');
-
 
   // Toggle dropdown menus
   const closeOtherDropdowns = (target) => {
@@ -96,6 +94,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+    
+  // Inspector toggle
+  const toggleInspectorBtn = document.querySelector('#toggle-inspector-btn');
   let inspectorOpen = true;
 
   toggleInspectorBtn.addEventListener('click', () => {
@@ -111,6 +112,18 @@ document.addEventListener('DOMContentLoaded', () => {
       toggleInspectorBtn.classList.add('collapsed');
     }
   });
+
+  // Tab toggle for each section
+  document.querySelectorAll('.toggle-tab-btn').forEach(button => {
+    button.addEventListener('click', () => {
+      const tab = button.closest('.tab');
+      tab.classList.toggle('collapsed');
+
+      const arrow = button.querySelector('.arrow');
+      arrow.textContent = tab.classList.contains('collapsed') ? '›' : '‹';
+    });
+  });
+
 
 
 
