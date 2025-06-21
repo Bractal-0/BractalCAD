@@ -10,10 +10,6 @@ html, body {
   overflow: hidden;
   font-family: monospace;
 }
-#canvas-wrapper {
-  flex: 1;
-  position: relative;
-}
 #background {
   position: absolute;
   top: 0;
@@ -28,6 +24,7 @@ ul li {
   margin: 0;
   padding: 0;
   background-color: white;
+  border-bottom: 1px dashed rgb(210, 210, 210);
 }
 .toggle-sidebar-btn {
   position: absolute;
@@ -43,7 +40,7 @@ ul li {
 
   cursor: pointer;
 
-  z-index: 1002;
+  z-index: 1000;
   align-items: center;
   justify-content: center;
   text-align: center;
@@ -54,14 +51,14 @@ ul li {
 .toggle-sidebar-btn:hover {
   background-color: rgb(210, 210, 210);
 }
-#menu #toggle-menu-btn.collapsed {
-  transform: translateX(-74px);
+#toggle-menu-btn.collapsed {
+  transform: translateX(-81px);
 }
 #menu {
   position: fixed;
   top: 0;
   left: 0;
-  width: 75px;
+  width: 82px;
   height: 100dvh;
   display: flex;
   flex-direction: column;
@@ -85,7 +82,6 @@ ul li {
   visibility: visible;
   display: flex;
   flex-direction: column;
-  list-style: none;
   text-align: left;
   margin: 0;
   padding: 0;
@@ -93,20 +89,22 @@ ul li {
 #menu li {
   flex: 1;
   position: relative;
-  height: 100%;
-  overflow: visible;
+  height: auto;
+  margin: 0;
+  padding: 0;
 }
 #menu li button {
+  display: flex;
   width: 100%;
   height: 100%;
   text-align: left;
   padding: 0 1rem;
   font: inherit;
-  background: transparent;
+  background: white;
   border: none;
   cursor: pointer;
-  display: flex;
   align-items: center;
+  margin: 0;
 }
 #menu li button:hover {
   background-color: rgb(210, 210, 210);
@@ -117,31 +115,86 @@ ul li {
   top: 0;
   left: 100%;
   height: auto;
-  text-wrap: wrap;
+  text-wrap: nowrap;
   flex-direction: column;
   background-color: white;
   border: 1px solid black;
+  margin: 0;
+  padding: 0;
+  pointer-events: auto;
   z-index: 1001;
-}
-#menu .dropdown button {
-  flex: 1;
-  width: 100%;
-  height: 100%;
-  text-align: left;
-  background-color: white;
-  border: none;
-  cursor: pointer;
-}
-#menu .dropdown button:hover {
-  background-color: rgb(210, 210, 210);
-}
-#menu li.open > .dropdown {
-  display: flex;
 }
 #menu .dropdown .dropdown {
   top: 0;
-  left: 100%; /* default open to right */
+  transform: translateY(-1px); /* account for border */
 }
+#menu li.open > .dropdown {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  pointer-events: auto;
+}
+#menu li.open > .dropdown button {
+  margin: 0;
+  height: 30px;
+}
+
+
+#view-menu #camera-controls {
+  position: relative; /* to position the middle border */
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  padding: 8px;
+}
+/* Middle vertical border */
+#view-menu #camera-controls::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+  border-left: 1px dashed rgb(210, 210, 210);
+  transform: translateX(-50%);
+  z-index: 1;
+}
+#view-menu #camera-controls button {
+  width: 40px;
+  height: 40px;
+  justify-content: center;
+  cursor: pointer;
+  color: black;
+}
+#camera-controls .button-label {
+  background-color: white;
+  padding: 4px;
+}
+#view-menu #camera-controls button:hover {
+  border: 1px solid black;
+}
+#view-menu #xyCamera-btn {
+  background: #FF0000B3;
+}
+#view-menu #zyCamera-btn {
+  background: #FFFF00B3;
+}
+#view-menu #xzCamera-btn {
+  background: #0000FFB3;
+}
+#view-menu #abCamera-btn {
+  background: #FF5CFFB3;
+}
+#view-menu #cbCamera-btn {
+  background: #008000B3;
+}
+#view-menu #acCamera-btn {
+  background: #FFA700B3;
+}
+
+
+
+
 #inspector {
   position: fixed;
   display: flex;
@@ -153,8 +206,14 @@ ul li {
   width: 150px;
   height: 100dvh;
   z-index: 1000;
+  overflow-y: auto;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;  /* Internet Explorer/Edge Legacy */
   background-color: white;
   border-left: 1px solid black;
+}
+#inspector::-webkit-scrollbar {
+  display: none; /* Safari and Chrome */
 }
 #inspector.collapsed {
   width: 0;
@@ -164,7 +223,7 @@ ul li {
   visibility: hidden;
   pointer-events: none;
 }
-#inspector #toggle-inspector-btn.collapsed {
+#toggle-inspector-btn.collapsed {
   transform: translateX(149.5px);
 }
 #inspector ul {
@@ -177,7 +236,6 @@ ul li {
   margin: 0;
   padding: 0;
   border-top: 1px solid black;
-  border-bottom: 1px solid black;
 }
 #inspector li {
   flex: 1;
@@ -224,38 +282,79 @@ ul li {
   cursor: default;
 }
 .tab-content li {
-  padding: 8px 10px;
   display: flex;
+  padding: 8px 10px;
   align-items: center;
-  gap: 10px;
 }
 label {
   cursor: pointer;
-  padding: 4px 0;
-  margin-left: 2px;
-  margin-top: 2px;
-  margin-bottom: 2px;
+  padding: 8px 4px;
   user-select: none; /* Prevent text selection */
+  border-bottom: 1px dashed rgb(210, 210, 210);
 }
 input[type="checkbox"] {
   width: 15px;
   height: 15px;
   cursor: pointer;
 }
+#toggle-all-planes-label {
+  border: none;
+}
 #plane-toggles {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 2px 2px;
-  border-bottom: 1px solid black;
+  grid-template-columns: repeat(2, 1fr);
+  border-top: 1px dashed rgb(210, 210, 210);
 }
-#toggle-grids-label {
-  border-bottom: 1px solid black;
+#plane-toggles label {
+  border-right: 1px dashed rgb(210, 210, 210);
 }
 
 
-
-.home-icon {
+.scroll-wrapper {
+  height: 50px;
+  overflow-x: scroll;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+  background: #ddd;
+}
+.tool-carousel {
   display: flex;
+  overflow-x: scroll;
+  overflow-y: hidden;
+  scrollbar-width: auto;
+  gap: 12px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  background-color: #f8f8f8;
+  white-space: nowrap;
+}
+.tool-carousel::-webkit-scrollbar {
+  height: 12px;
+  display: block;
+}
+.tool-btn {
+  flex: 0 0 auto;
+  width: 28px;
+  height: 28px;
+  justify-content: center;
+  border: 1px solid #999;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.tool-btn:hover {
+  background-color: #e0e0e0;
+}
+.tool-btn.active {
+  border: 3px solid #000;
+}
+
+
+
+#home-icon {
+  display: flex;
+  align-items: flex-start;
+  top: 10px;
+  left: 10px;
   max-width: 40px !important;
   height: auto; /* Maintain aspect ratio */
   object-fit: contain;
@@ -265,145 +364,40 @@ input[type="checkbox"] {
   background-color: transparent;
   opacity: 0.6;
   padding: 4px 4px;
-  margin-left: 10px;
-  z-index: 1000;
 }
-#user-interface{
-  position: fixed;
-  z-index: 100;
-  pointer-events: auto;
-  font-size: 12px;
-  text-align: center;
-}
-#camera-controls {
-  position: fixed;
+#about-section-header {
   display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: flex-start;
-  width: 30px;
-  top: 10dvh;
-  left: 1rem;
-  border: none;
-  gap: 1rem;
-  pointer-events: auto;
-}
-.camera-control {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-.camera-control span {
-  pointer-events: none;
-}
-.camera-control button {
-  width: 20px;
-  height: 20px;
-  text-align: left;
-  cursor: pointer;
-  opacity: 0.6;
-  border: none;
-  border-radius: 0;
-}
-.camera-control button:hover {
-  border: 1px solid black;
-}
-#xyCamera-btn {
-  background: #FF0000;
-}
-#zyCamera-btn {
-  background: #FFFF00;
-}
-#xzCamera-btn {
-  background: #0000FF;
-}
-#orbit-btn {
-  margin-top: 10px;
-  margin-bottom: 10px;
-  border-radius: 12px;
-  margin-right: 6px;
-  scale: 1.5;
-}
-#abCamera-btn {
-  background: #FF5CFF;
-}
-#cbCamera-btn {
-  background: #008000;
-}
-#acCamera-btn {
-  background: #FFA700;
-}
-#settings {
-  position: fixed;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  align-items: flex-end;
-  top: 4%;
-  right: 3%;
-  height: auto;
-  border: none;
-  gap: 12px;
-  pointer-events: auto;
-}
-.setting {
-  display: flex;
-  border-radius: 0;
-  gap: 10px;
-}
-.setting button {
-  width: 20px;
-  height: 20px;
-  border-radius: 0;
-  border: none;
-}
-#fullscreen-btn {
-  margin-bottom: 5px;
-}
-#tools {
-  position: fixed;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: center;
-  top: 30%;
-  right: 5%;
-  min-width: auto;
-  height: auto;
-  border: none;
-  gap: 10px;
-  pointer-events: auto;
-}
-#tools button {
-  cursor: pointer;
-}
-#tools button.active {
-  background-color: #ccc;
-  border: 2px solid #000;
-}
-#about {
-  position: fixed;
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  width: 100dvw;
-  padding: 0 5px;
-  font-size: 8px;
-  font-style: italic;
-  cursor: default;
-  user-select: none;
-  pointer-events: none;
-  padding-bottom: env(safe-area-inset-bottom) 5px;
-}
-#about p {
-  padding: 0 5px;
+  justify-content: space-between;
 
 }
-#about a {
-  font-size: 12px;
-  pointer-events: all;
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed;
+  top: 0; left: 0;
+  width: 100dvw;
+  height: 100dvh;
+  background: rgba(0, 0, 0, 0.5); /* Dim background */
+  z-index: 2000;
+  justify-content: center;
+  align-items: center;
+}
+.modal-content {
+  position: relative;
+  padding: 12px;
+  max-width: 500px;
+  width: 80%;
+  overflow-y: scroll;
+  border: 1px solid black;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  text-align: center;
+  background: white;
+}
+.close-btn {
+  position: absolute;
+  top: 4px;
+  right: 8px;
+  font-size: 24px;
+  background: none;
+  border: none;
+  cursor: pointer;
 }

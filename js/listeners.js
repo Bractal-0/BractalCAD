@@ -13,10 +13,6 @@ export function initListeners(toolManager, controls, lineTool) {
     if (e.code === 'Space') { app.spaceDown = false; }
   });
 
-  app.renderer.domElement.addEventListener('pointerup', (e) => {
-    app.controls.mouseButtons.LEFT = THREE.MOUSE.ROTATE;
-  });
-
   // To stop drawing
   window.addEventListener('keydown', (e) => {
     if (!lineTool.isDrawing) return;
@@ -43,5 +39,6 @@ export function initListeners(toolManager, controls, lineTool) {
   window.addEventListener('pointerup', (e) => {
     toolManager.onPointerUp(e);
   });
+
 
 }

@@ -42,9 +42,9 @@ let cameraZoom, cameraFar, frustrumSize;
 // input number button for cube gap with max and min.
 
 // origin axeshelper
-const origin = new THREE.AxesHelper(cube.pSize);
-origin.position.set(0,0,0);
-scene.add(origin);
+// const origin = new THREE.AxesHelper(cube.pSize);
+// origin.position.set(0,0,0);
+// scene.add(origin);
 
 // Run startup animation, then start main app
 //runStartupAnimation(renderer, main);
@@ -110,7 +110,7 @@ function init () {
   // Make sure this runs before OrbitControls processes the event
   app.renderer.domElement.addEventListener('pointerdown', (e) => {
     if (e.pointerType === 'mouse' && e.button === 0) {
-      app.controls.mouseButtons.LEFT = app.spaceDown ? THREE.MOUSE.PAN : THREE.MOUSE.ROTATE;
+      app.controls.mouseButtons.RIGHT = app.spaceDown ? THREE.MOUSE.PAN : THREE.MOUSE.ROTATE;
     }
   }, { capture: true }); // 'capture' ensures we run before OrbitControls
 

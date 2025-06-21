@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import { toggleGrids } from './cube.js';
 import { app } from './app.js';
 
 export function initUIButtons({
@@ -38,9 +37,31 @@ export function initUIButtons({
     }
   });
 
-  // Toggle grid
-  document.getElementById('toggle-grid-btn').addEventListener('click', () => {
-    toggleGrids();
+  // Toggle all planes
+  const checkPlanes = document.getElementById('toggle-all-planes');
+
+  checkPlanes.addEventListener('change', () => {
+    app.cube.toggleAllPlanes(checkPlanes.checked);
+  });
+
+  // Toggle plane
+  //const planeName = this.planes[i].name;
+  //const toggle = "toggle-" + planeName;
+  
+  //const plane = document.getElementById(toggle);
+
+  // Toggle grids
+  const checkGrids = document.getElementById('toggle-grids');
+
+  checkGrids.addEventListener('change', () => {
+    app.cube.toggleGrids(checkGrids.checked);
+  });
+
+  // Toggle borders
+  const checkBorders = document.getElementById('toggle-borders');
+
+  checkBorders.addEventListener('change', () => {
+    app.cube.toggleBorders(checkBorders.checked);
   });
 
   // Camera buttons

@@ -16,7 +16,7 @@ export class SuperCube extends THREE.Group {
     this.gap = this.pSize * this.gapScale;
     this.halfPlane = this.pSize/2;
     this.griddivs = 20;
-    this.planeOpacity = 0;
+    this.planeOpacity = 1;
     // Grids
     this.gridMaterial = null;
     this.gridOpacity = 0.2;
@@ -26,14 +26,18 @@ export class SuperCube extends THREE.Group {
     this.pixelsPerWorldUnit;
     this.rawSpacing;
     // Borders
-    this.borderScale = 0.02;
+    this.borderScale = 0.05;
     this.borderWidth = this.pSize * this.borderScale;
     this.borderSize = this.pSize + this.borderWidth*2;
-    this.halfOuter = this.halfPlane + this.borderWidth;
+
+    this.borderGap = this.pSize * 0.1;
+    this.halfOuter = this.halfPlane + this.borderWidth + this.borderGap;
+    this.halfCube = this.halfPlane + this.borderGap;
     this.borderOpacity = 0.6;
+    this.totalGap = this.gap + this.borderWidth + this.borderGap;
     // Axis labels
     this.labelSize = 0.4;
-    this.labelOffset = this.gap + this.borderWidth + (this.pSize*0.1);
+    this.labelOffset = this.gap + this.borderWidth + this.borderGap + (this.pSize*0.1);
     // Inner build box
     this.buildBox = null;
 
@@ -69,8 +73,9 @@ export class SuperCube extends THREE.Group {
     this.cbBorder = null;
     this.acBorder = null;
 
-    //Outlines
+    //OuterPoints
     this.outerPoints = null;
+    // Border Outlines
     this.xyOutline = null;
     this.zyOutline = null;
     this.xzOutline = null;
@@ -86,20 +91,13 @@ export class SuperCube extends THREE.Group {
     this.abGroup = null;
     this.cbGroup = null;
     this.acGroup = null;
-    
-    // Border Outlines
-    this.xyOutline = null;
-    this.zyOutline = null;
-    this.xzOutline = null;
-    this.abOutline = null;
-    this.cbOutline = null;
-    this.acOutline = null;
 
     // For easy reference
-    this.groups = [];
-    this.planes = [];
+    this.groups = {};
+    this.planes = {};
+    this.grids = {};
+    this.borders = {};
     this.colours = [];
-    this.borders = [];
     this.labels = [];
 
     this.init();
@@ -110,7 +108,7 @@ export class SuperCube extends THREE.Group {
     this.planeGeometry = new THREE.PlaneGeometry(this.pSize, this.pSize);
     this.planeGeometry.translate(this.pSize/2, this.pSize/2, 0);
 
-    this.planeMaterial = this.createPlaneMaterial(0xffffff);
+    this.planeMaterial = this.createPlaneMaterial();
 
     // Colours
     this.colours = {
@@ -165,14 +163,6 @@ export class SuperCube extends THREE.Group {
     this.cbGrid = this.createGrid(2);
     this.acGrid = this.createGrid(0);
 
-    this.outerPoints = [
-      new THREE.Vector3(-this.halfOuter, -this.halfOuter, 0),
-      new THREE.Vector3(this.halfOuter, -this.halfOuter, 0),
-      new THREE.Vector3(this.halfOuter, this.halfOuter, 0),
-      new THREE.Vector3(-this.halfOuter, this.halfOuter, 0),
-      new THREE.Vector3(-this.halfOuter, -this.halfOuter, 0)
-    ];
-
     // Plane Borders
     this.xyBorder = this.createBorderStrip(this.colours.xy);
     this.zyBorder = this.createBorderStrip(this.colours.zy);
@@ -180,6 +170,14 @@ export class SuperCube extends THREE.Group {
     this.abBorder = this.createBorderStrip(this.colours.ab);
     this.cbBorder = this.createBorderStrip(this.colours.cb);
     this.acBorder = this.createBorderStrip(this.colours.ac);
+
+    this.outerPoints = [
+      new THREE.Vector3(-this.halfCube+this.borderWidth, -this.halfCube-this.borderWidth, 0),
+      new THREE.Vector3(this.halfCube+this.borderWidth, -this.halfCube-this.borderWidth, 0),
+      new THREE.Vector3(this.halfCube+this.borderWidth, this.halfCube+this.borderWidth, 0),
+      new THREE.Vector3(-this.halfCube-this.borderWidth, this.halfCube+this.borderWidth, 0),
+      new THREE.Vector3(-this.halfCube-this.borderWidth, -this.halfCube-this.borderWidth, 0)
+    ];
 
     // Plane edges
     this.xyOutline = this.createOutline();
@@ -214,43 +212,20 @@ export class SuperCube extends THREE.Group {
     this.bLabel = this.createAxisLabel('B', 0x000000, new THREE.Vector3(this.pSize+this.labelOffset, this.halfPlane, this.pSize+this.labelOffset));
     this.cLabel = this.createAxisLabel('C', 0x000000, new THREE.Vector3(this.pSize+this.labelOffset, this.pSize+this.labelOffset, this.halfPlane));
 
-    this.planes = [
-      this.xyPlane,
-      this.zyPlane,
-      this.xzPlane,
-      this.abPlane,
-      this.cbPlane,
-      this.acPlane
-    ]
+    // To search and loop through
+    this.groupMap = {
+      xy: { group: this.xyGroup, plane: this.xyPlane, grid: this.xyGrid, border: this.xyBorder },
+      zy: { group: this.zyGroup, plane: this.zyPlane, grid: this.zyGrid, border: this.zyBorder },
+      xz: { group: this.xzGroup, plane: this.xzPlane, grid: this.xzGrid, border: this.xzBorder },
+      ab: { group: this.abGroup, plane: this.abPlane, grid: this.abGrid, border: this.abBorder },
+      cb: { group: this.cbGroup, plane: this.cbPlane, grid: this.cbGrid, border: this.cbBorder },
+      ac: { group: this.acGroup, plane: this.acPlane, grid: this.acGrid, border: this.acBorder },
+    };
 
-    this.grids = [
-      this.xyGrid,
-      this.zyGrid,
-      this.xzGrid,
-      this.abGrid,
-      this.cbGrid,
-      this.acGrid
-    ]
-
-    this.borders = [
-      this.xyBorder,
-      this.zyBorder,
-      this.xzBorder,
-      this.abBorder,
-      this.cbBorder,
-      this.acBorder
-    ]
-
-    // map for groups
-    // cube.groups.xy
-    this.groups = {
-      xy: this.xyGroup,
-      zy: this.zyGroup,
-      xz: this.xzGroup,
-      ab: this.abGroup,
-      cb: this.cbGroup,
-      ac: this.acGroup,
-  }
+    this.groups = Object.values(this.groupMap).map(face => face.group);
+    this.planes = Object.values(this.groupMap).map(face => face.plane);
+    this.grids = Object.values(this.groupMap).map(face => face.grid);
+    this.borders = Object.values(this.groupMap).map(face => face.border);
 
     this.positionGroups();
   
@@ -264,8 +239,11 @@ export class SuperCube extends THREE.Group {
       this.cLabel
     ]
 
-    // Add each group and label explicitly
-    Object.values(this.groups).forEach(group => this.add(group));
+    // Add groups and label explicitly
+    for (const key in this.groupMap) {
+      const { group } = this.groupMap[key];
+      this.add(group);
+    }
     this.labels.forEach(label => this.add(label));
   }
 
@@ -274,39 +252,23 @@ export class SuperCube extends THREE.Group {
     this.positionGroups();
   }
 
-    positionGroups() {
+  positionGroups() {
+
     this.groupSet = {
-      xy:    { pos: [0, 0, -this.gap-this.borderWidth*1], rot: [0, 0, 0] },
-      zy:    { pos: [-this.gap-this.borderWidth*1, 0, this.pSize], rot: [0, Math.PI/2, 0] },
-      xz:    { pos: [0, -this.gap-this.borderWidth*1, 0], rot: [Math.PI/2, 0, 0] },
-      ab:    { pos: [0, 0,this.pSize+this.gap+this.borderWidth*1], rot: [0, 0, 0] },
-      cb:    { pos: [this.pSize+this.gap+this.borderWidth*1, 0, this.pSize], rot: [0, Math.PI/2, 0] },
-      ac:    { pos: [0, this.pSize+this.gap+this.borderWidth*1, 0], rot: [Math.PI/2, 0, 0] },
+      xy:    { pos: [0, 0, -this.totalGap], rot: [0, 0, 0] },
+      zy:    { pos: [-this.totalGap, 0, this.pSize], rot: [0, Math.PI/2, 0] },
+      xz:    { pos: [0, -this.totalGap, 0], rot: [Math.PI/2, 0, 0] },
+      ab:    { pos: [0, 0,this.pSize+this.totalGap], rot: [0, 0, 0] },
+      cb:    { pos: [this.pSize+this.totalGap, 0, this.pSize], rot: [0, Math.PI/2, 0] },
+      ac:    { pos: [0, this.pSize+this.totalGap, 0], rot: [Math.PI/2, 0, 0] },
     };
-    for (const key in this.groups) {
+    for (const key in this.groupMap) {
+      const { group } = this.groupMap[key];
       const { pos, rot } = this.groupSet[key];
-      const group = this.groups[key];
       group.position.set(...pos);
       group.rotation.set(...rot);
     }
   }
-
-  // positionGroups() {
-  //   this.groupSet = {
-  //     xy:    { pos: [this.halfPlane, this.halfPlane, -this.gap-this.borderWidth*1], rot: [0, 0, 0] },
-  //     zy:    { pos: [-this.gap-this.borderWidth*1, this.halfPlane, this.halfPlane], rot: [0, Math.PI/2, 0] },
-  //     xz:    { pos: [this.halfPlane, -this.gap-this.borderWidth*1, this.halfPlane], rot: [Math.PI/2, 0, 0] },
-  //     ab:    { pos: [this.halfPlane, this.halfPlane ,this.pSize+this.gap+this.borderWidth*1], rot: [0, 0, 0] },
-  //     cb:    { pos: [this.pSize+this.gap+this.borderWidth*1, this.halfPlane, this.halfPlane], rot: [0, Math.PI/2, 0] },
-  //     ac:    { pos: [this.halfPlane, this.pSize+this.gap+this.borderWidth*1, this.halfPlane], rot: [Math.PI/2, 0, 0] },
-  //   };
-  //   for (const key in this.groups) {
-  //     const { pos, rot } = this.groupSet[key];
-  //     const group = this.groups[key];
-  //     group.position.set(...pos);
-  //     group.rotation.set(...rot);
-  //   }
-  // }
 
   scaleGuides(renderer, camera) {
     this.scaleLabels(camera.zoom);
@@ -322,17 +284,17 @@ export class SuperCube extends THREE.Group {
   }
 
   // Incase option to change plane colours
-  createPlaneMaterial(color) {
+  createPlaneMaterial() {
     return new THREE.MeshBasicMaterial({
-    color,
+    color: 0x000000,
     side: THREE.DoubleSide,
     transparent: true,
-    opacity: this.planeOpacity,
+    opacity: 0.0,
     polygonOffset: true,
     polygonOffsetFactor: 1,
     polygonOffsetUnits: 1,
     depthWrite: false,
-    blending: THREE.CustomBlending
+    blending: THREE.NormalBlending
     });
   }
 
@@ -365,6 +327,7 @@ export class SuperCube extends THREE.Group {
 
   createBorderStrip(colour) {
     // Outer frame: covers full plane + border on all sides
+
     const outer = new THREE.Shape();
     outer.moveTo(-this.halfOuter, -this.halfOuter);
     outer.lineTo(this.halfOuter, -this.halfOuter);
@@ -374,11 +337,11 @@ export class SuperCube extends THREE.Group {
 
     // Inner hole: matches exact plane dimensions
     const inner = new THREE.Path();
-    inner.moveTo(-this.halfPlane, -this.halfPlane);
-    inner.lineTo(-this.halfPlane, this.halfPlane);
-    inner.lineTo(this.halfPlane, this.halfPlane);
-    inner.lineTo(this.halfPlane, -this.halfPlane);
-    inner.lineTo(-this.halfPlane, -this.halfPlane);
+    inner.moveTo(-this.halfCube, -this.halfCube);
+    inner.lineTo(-this.halfCube, this.halfCube);
+    inner.lineTo(this.halfCube, this.halfCube);
+    inner.lineTo(this.halfCube, -this.halfCube);
+    inner.lineTo(-this.halfCube, -this.halfCube);
 
     outer.holes.push(inner);
 
@@ -446,7 +409,7 @@ export class SuperCube extends THREE.Group {
 
     this._gridSpacing = spacing;
 
-    for (const grid of this.grids) {
+    for (const { grid } of Object.values(this.groupMap)) {
       const mat = grid.material.uniforms;
 
       mat.u_spacing.value = spacing;
@@ -464,6 +427,31 @@ export class SuperCube extends THREE.Group {
 
     //console.log('spacing: ', spacing);
   }
+
+  // Toggle all planes by visibility
+  toggleAllPlanes(visible) {
+    for (const { group } of Object.values(this.groupMap)) {
+      group.visible = visible;
+    }
+  }
+
+  // Toggle grids by visibility
+  toggleGrids(visible) {
+    for (const { grid } of Object.values(this.groupMap)) {
+      grid.visible = visible;
+    }
+  }
+
+  // Toggle borders by visibility
+  toggleBorders(visible) {
+    for (const { border } of Object.values(this.groupMap)) {
+      border.visible = visible;
+    }
+  }
+  
+
+
+  // end of cube
 }
 
 function getRoundedSpacing(rawSpacing) {
@@ -474,28 +462,6 @@ function getRoundedSpacing(rawSpacing) {
     if (spacing >= rawSpacing) return spacing;
   }
   return base * 10;
-}
-
-export function toggleGrids(scene) {
-
-  if (xyGroup.xyGrid) {
-    removeGridsFromGroups(planes, grids);
-  } else {
-    // Add cube to groups
-    addGridsToGroups(planes, grids);
-  }
-}
-
-function addGridsToGroups(groups, grids) {
-  for (let i = 0; i < groups.length; i++) {
-    groups[i].add(grids[i]);
-  }
-}
-
-function removeGridsFromGroups(groups, grids) {
-  for (let i = 0; i < groups.length; i++) {
-    groups[i].remove(grids[i]);
-  }
 }
 
 const cube = new SuperCube();

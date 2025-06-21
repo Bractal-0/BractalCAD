@@ -8,14 +8,13 @@
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <div class="canvas-wrapper">
-    <canvas id="background"></canvas>
-  </div>
+  <canvas id="background"></canvas>
 
+  <button id="toggle-menu-btn" class="toggle-sidebar-btn" style="left: 81.5px;">&#x25C0;</button>
   <div id="menu" class="menu">
-    <button id="toggle-menu-btn" class="toggle-sidebar-btn" style="left: 74.5px; bottom: 20%;">&#x25C0;</button>
     <ul>
-      <li><button class="dropdown-toggle"><u>F</u>ile</button>
+      <!--FILE-->
+      <li id="file-menu"><button class="dropdown-toggle"><u>F</u>ile</button>
         <ul class="dropdown">
           <li><button class="dropdown-toggle">New</button>
             <ul class="dropdown">
@@ -34,6 +33,7 @@
           </li>
           <li><button class="dropdown-toggle">Save As</button>
             <ul class="dropdown">
+              <li><button>Save</button></li>
             </ul>
           </li>
           <li><button class="dropdown-toggle">Import</button>
@@ -41,26 +41,48 @@
               <li><button>STL</button></li>
             </ul>
           </li>
-          <li>
-            <button class="dropdown-toggle">Export</button>
+          <li><button class="dropdown-toggle">Export</button>
             <ul class="dropdown">
               <li><button>STL</button></li>
             </ul>
           </li>
+
         </ul>
-      <li><button><u>E</u>dit</button></li>
-      <li><button><u>V</u>iew</button></li>
-      <li><button><u>S</u>ettings</button></li>
-      <li><button><u>H</u>elp</button></li>
-      <li><button><u>A</u>bout</button></li>
-      <li><button><u>D</u>onate</button></li>
+      </li>
+
+      <!--EDIT-->
+      <li><button class="dropdown-toggle"><u>E</u>dit</button>
+      </li>
+
+      <!--VIEW-->
+      <li id="view-menu"><button class="dropdown-toggle"><u>V</u>iew</button>
+        <ul class="dropdown">
+          <li><button id="fullscreen-btn">Fullscreen</button></li>
+          <li><button id="center-btn"><span class="button-label">Center</span></button></li>
+          <li id="camera-controls">
+            <button id="xyCamera-btn"><span class="button-label">XY</span></button>
+            <button id="abCamera-btn"><span class="button-label">AB</span></button>
+            <button id="zyCamera-btn"><span class="button-label">ZY</span></button>
+            <button id="cbCamera-btn"><span class="button-label">CB</span></button>
+            <button id="xzCamera-btn"><span class="button-label">XZ</span></button>
+            <button id="acCamera-btn"><span class="button-label">AC</span></button>
+          </li>
+        </ul>
+      </li>
+
+      <li><button class="dropdown-toggle"><u>S</u>ettings</button></li>
+      <li><button class="dropdown-toggle"><u>H</u>elp</button></li>
+
+      <li><button class="about"><u>A</u>bout</button></li>
+
+      <li><button class="dropdown-toggle"><u>D</u>onate</button></li>
     </ul>
   </div>
-
+  
+  <button id="toggle-inspector-btn" class="toggle-sidebar-btn" style="right: 149.3px;">&#x25B6;</button>
   <div id="inspector" class="menu">
-    <button id="toggle-inspector-btn" class="toggle-sidebar-btn" style="right: 149.3px; bottom: 20%;">&#x25B6;</button>
-
-    <div class="tab" class="collapsed">
+    <div class="inspector-content">
+      <div class="tab" class="collapsed">
       <div class="tab-header">
         <button class="toggle-tab-btn">
           <span class="arrow">‹</span>
@@ -68,9 +90,9 @@
         </button>
       </div>
       <ul class="tab-content">
-        <label>
+        <label id="toggle-all-planes-label">
           <input type="checkbox" id="toggle-all-planes" checked>
-          <span>Planes</span>
+          <label for="toggle-all-planes">Planes</label>
         </label>
 
         <div id="plane-toggles">
@@ -79,129 +101,98 @@
             <span>XY</span>
           </label>
           <label>
-            <input type="checkbox" id="toggle-zy" checked>
-            <span>ZY</span>
-          </label>
-          <label>
-            <input type="checkbox" id="toggle-xz" checked>
-            <span>XZ</span>
-          </label>
-          <label>
             <input type="checkbox" id="toggle-ab" checked>
             <span>AB</span>
+          </label>
+          <label>
+            <input type="checkbox" id="toggle-zy" checked>
+            <span>ZY</span>
           </label>
           <label>
             <input type="checkbox" id="toggle-cb" checked>
             <span>CB</span>
           </label>
           <label>
+            <input type="checkbox" id="toggle-xz" checked>
+            <span>XZ</span>
+          </label>
+          <label>
             <input type="checkbox" id="toggle-ac" checked>
             <span>AC</span>
           </label>
         </div>
+
         <label id="toggle-grids-label">
           <input type="checkbox" id="toggle-grids" checked>
-          <span>Grids</span>
+          <label for="toggle-grids">Grids</label>
         </label>
-        <label>
+
+        <label id="toggle-borders-label">
           <input type="checkbox" id="toggle-borders" checked>
           <span>Borders</span>
         </label>
+
+        <label>
+          <input type="checkbox" id="toggle-rotate" checked>
+          <span>Rotate</span>
+        </label>
       </ul>
+      <div class="tab" class="collapsed">
+          <div class="tab-header">
+            <button class="toggle-tab-btn">
+              <span class="arrow">‹</span>
+              <span class="tab-label">Tools</span>
+            </button>
+          </div>
+          <ul class="tab-content">
+            <div class="tool-carousel">
+              <button class="tool-btn" id="line-btn">✏️</button>
+              <button class="tool-btn">📏</button>
+              <button class="tool-btn" id="rectangle-btn">🔲</button>
+              <button class="tool-btn">🔵</button>
+            </div> 
+          </ul>
+        </div>
+
+        <div class="tab" class="collapsed">
+          <div class="tab-header">
+            <button class="toggle-tab-btn">
+              <span class="arrow">‹</span>
+              <span class="tab-label">Layers</span>
+            </button>
+          </div>
+          <ul class="tab-content">
+            <li><span>[icon]--</span>Layer 1</li>
+            <li><span>[icon]--</span>Layer 2</li>
+          </ul>
+        </div>
     </div>
 
-    <div class="tab" class="collapsed">
-      <div class="tab-header">
-        <button class="toggle-tab-btn">
-          <span class="arrow">‹</span>
-          <span class="tab-label">Tools</span>
-        </button>
-      </div>
-      <ul class="tab-content">
-        <li><span>[icon]--</span>Line</li>
-      </ul>
-    </div>
-
-    <div class="tab" class="collapsed">
-      <div class="tab-header">
-        <button class="toggle-tab-btn">
-          <span class="arrow">‹</span>
-          <span class="tab-label">Layers</span>
-        </button>
-      </div>
-      <ul class="tab-content">
-        <li><span>[icon]--</span>Layer 1</li>
-        <li><span>[icon]--</span>Layer 2</li>
-      </ul>
-    </div>
 
 
   </div>
 
   
-  <div id="user-interface">
-    <div id="camera-controls">
-      <div class="camera-control">
-        <button id="xyCamera-btn"></button>
-        <span>XY</span>
+  <div id="about-section" class="modal">
+    <div class="modal-content">
+      <button id="close-about-btn" class="close-btn">&times;</button>
+      <div id="about-section-header">
+        <a href="https://bractal.com">
+          <img
+          id="home-icon"
+          src="icons/white-butterfly.svg"
+          alt="White-Butterfly"
+          />
+        </a>
+        <p>Bractal's CAD - Orthographic CAD concept</p>
       </div>
-      <div class="camera-control">
-        <button id="zyCamera-btn"></button>
-        <span>ZY</span>
-      </div>
-      <div class="camera-control">
-        <button id="xzCamera-btn"></button>
-        <span>XZ</span>
-      </div>
-      <div class="camera-control">
-        <button id="center-btn"></button>
-        <span>Center</span>
-      </div>
-      <div class="camera-control">
-        <button id="abCamera-btn"></button>
-        <span>AB</span>
-      </div>
-      <div class="camera-control">
-        <button id="cbCamera-btn"></button>
-        <span>CB</span>
-      </div>
-      <div class="camera-control">
-        <button id="acCamera-btn"></button>
-        <span>AC</span>
-      </div>
-    </div>
-    <div id="settings">
-      <div class="setting">
-        <span>Fullscreen</span>
-        <button id="fullscreen-btn" type="Toggle"></button>
-      </div>
-      <div class="setting">
-        <span>Grid</span>
-        <button id="toggle-grid-btn" type="Toggle"></button>
-      </div>
-    </div>
 
-    <div id="tools">
-      <button id="line-btn">
-        Line
-      </button>
-      <button id="rectangle-btn">
-        Rectangle
-      </button>
-    </div>
-
-    <div id="about">
-      <p>Bractal's CAD - Orthographic CAD concept</p>
       <p>Version 0.3</p>
       <p>&copy; 2025 Bractal</p>
       <p>License: GNU GPL-3.0</p>
-      <a href="https://bractal.com">
-        <img
-        class="home-icon"
-        src="icons/white-butterfly.svg"
-        alt="White-Butterfly"
-        />
-      </a>
+
+      <p>This is a free prototype of a CAD program for designing 3D objects entirely using orthographic Projection.
+      </p>
     </div>
   </div>
 

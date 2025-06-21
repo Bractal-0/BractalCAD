@@ -13,12 +13,9 @@ export default class LineTool extends DrawingTool {
 
     this.lineMaterial = new THREE.LineBasicMaterial({
       color: 0x000000,
-      transparent: true,
-      linewidth: 2,
-      opacity: 1,
       polygonOffset: true,
-      polygonOffsetFactor: -1,
-      polygonOffsetUnits: -1
+      polygonOffsetFactor: 10,
+      polygonOffsetUnits: 1
     });
 
     this.tempLine = null;
@@ -47,6 +44,8 @@ export default class LineTool extends DrawingTool {
   }
 
   draw() {
+    if (app.spaceDown) return;
+
     if (!this.enabled || !this.raycast.object) {
       // if clicked out of plane to cancel preview,
       // still finish what lines were drawn.

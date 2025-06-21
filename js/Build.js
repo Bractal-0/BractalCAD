@@ -7,7 +7,7 @@ export class Build extends THREE.Group {
   constructor(planes, planeSize) {
     super();
     // planes from cube
-    this.planes = planes ;
+    this.planes = planes;
     // Size of the build box for projecting the 3D objects
     this.size = planeSize;
 
